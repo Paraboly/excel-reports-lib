@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static com.paraboly.reportlib.utils.StyleUtils.*;
 
@@ -36,6 +37,7 @@ public class GenericReports {
 	@Data
 	public static class ColumnMetadata {
 		private String functionName;
+		private Function customFunction;
 		private Integer columnSize = 1;
 		private String bottomCalculation = "sum"; // potential values are sum, avg, or string:BOTTOM_NAME
 		private String cellContent = "money"; // potential values are money, percentage, count
@@ -136,7 +138,9 @@ public class GenericReports {
 				reportData.getColumnToMetadataMapping().forEach((columnName, columnMetadata) -> {
 					try {
 						map.get(columnName).getData().add(
-								data.getClass().getMethod(columnMetadata.getFunctionName()).invoke(data)
+								columnMetadata.getCustomFunction() == null ?
+								data.getClass().getMethod(columnMetadata.getFunctionName()).invoke(data) :
+										invokeCustomMethod(data, columnMetadata.getCustomFunction())
 						);
 					} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
 						e.printStackTrace();
@@ -145,6 +149,10 @@ public class GenericReports {
 			}
 
 			return new TableMapperExtended(reportData.getReportType(), new ArrayList<>(map.values()), reportData);
+		}
+
+		private static Object invokeCustomMethod(Object data, Function function) {
+			return function.apply(data);
 		}
 	}
 
