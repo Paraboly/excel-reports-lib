@@ -235,15 +235,17 @@ public class GenericReports {
 				}
 				Cell dataCell = dataRow.createCell(startOffsetX);
 				// style the bottom rows
-				if (!disableBottomRow && data.size() == i) {
-					CellStyle bottomStyle = sheet.getWorkbook().createCellStyle();
-					bottomStyle.cloneStyleFrom(headerStyle);
-					bottomStyle.setDataFormat(columnStyle.getDataFormat());
-					dataCell.setCellStyle(bottomStyle);
+				if (data.size() == i) {
+					if (!disableBottomRow){
+						CellStyle bottomStyle = sheet.getWorkbook().createCellStyle();
+						bottomStyle.cloneStyleFrom(headerStyle);
+						bottomStyle.setDataFormat(columnStyle.getDataFormat());
+						dataCell.setCellStyle(bottomStyle);
+					}
 				} else if(columnStyle != null)
 					dataCell.setCellStyle(columnStyle);
 
-				if (data.size() == i)
+				if (data.size() == i) {
 					if (!disableBottomRow){
 						float sum = 0.0f;
 						int stringsCount = 0;
@@ -262,6 +264,7 @@ public class GenericReports {
 						if (bottomCalculation != null && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
 							dataCell.setCellValue(bottomCalculation.split(":")[1]);
 						}
+					}
 				}
 				else if(data.get(i) instanceof Float) {
 					dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));
