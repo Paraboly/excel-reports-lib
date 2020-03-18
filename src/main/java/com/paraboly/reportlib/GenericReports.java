@@ -235,7 +235,7 @@ public class GenericReports {
 				}
 				Cell dataCell = dataRow.createCell(startOffsetX);
 				// style the bottom rows
-				if (data.size() == i) {
+				if (!disableBottomRow && data.size() == i) {
 					CellStyle bottomStyle = sheet.getWorkbook().createCellStyle();
 					bottomStyle.cloneStyleFrom(headerStyle);
 					bottomStyle.setDataFormat(columnStyle.getDataFormat());
@@ -243,7 +243,7 @@ public class GenericReports {
 				} else if(columnStyle != null)
 					dataCell.setCellStyle(columnStyle);
 
-				if (data.size() == i) {
+				if (!disableBottomRow && data.size() == i) {
 					float sum = 0.0f;
 					int stringsCount = 0;
 					for (T element:data) {
@@ -254,15 +254,14 @@ public class GenericReports {
 							stringsCount++;
 						}
 					}
-					if (!disableBottomRow) {
-						if (bottomCalculation == null || bottomCalculation.equals("sum"))
-							dataCell.setCellValue(sum);
-						else if (bottomCalculation != null && bottomCalculation.equals("avg"))
-							dataCell.setCellValue(sum / data.size());
-						if (bottomCalculation != null && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
-							dataCell.setCellValue(bottomCalculation.split(":")[1]);
-						}
+					if (bottomCalculation == null || bottomCalculation.equals("sum"))
+						dataCell.setCellValue(sum);
+					else if (bottomCalculation != null && bottomCalculation.equals("avg"))
+						dataCell.setCellValue(sum / data.size());
+					if (bottomCalculation != null && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
+						dataCell.setCellValue(bottomCalculation.split(":")[1]);
 					}
+
 				}
 				else if(data.get(i) instanceof Float) {
 					dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));
