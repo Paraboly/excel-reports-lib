@@ -243,25 +243,25 @@ public class GenericReports {
 				} else if(columnStyle != null)
 					dataCell.setCellStyle(columnStyle);
 
-				if (!disableBottomRow && data.size() == i) {
-					float sum = 0.0f;
-					int stringsCount = 0;
-					for (T element:data) {
-						if (element instanceof Float
-								|| element instanceof Integer) {
-							sum += Float.parseFloat(element.toString());
-						} else {
-							stringsCount++;
+				if (data.size() == i)
+					if (!disableBottomRow){
+						float sum = 0.0f;
+						int stringsCount = 0;
+						for (T element:data) {
+							if (element instanceof Float
+									|| element instanceof Integer) {
+								sum += Float.parseFloat(element.toString());
+							} else {
+								stringsCount++;
+							}
 						}
-					}
-					if (bottomCalculation == null || bottomCalculation.equals("sum"))
-						dataCell.setCellValue(sum);
-					else if (bottomCalculation != null && bottomCalculation.equals("avg"))
-						dataCell.setCellValue(sum / data.size());
-					if (bottomCalculation != null && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
-						dataCell.setCellValue(bottomCalculation.split(":")[1]);
-					}
-
+						if (bottomCalculation == null || bottomCalculation.equals("sum"))
+							dataCell.setCellValue(sum);
+						else if (bottomCalculation != null && bottomCalculation.equals("avg"))
+							dataCell.setCellValue(sum / data.size());
+						if (bottomCalculation != null && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
+							dataCell.setCellValue(bottomCalculation.split(":")[1]);
+						}
 				}
 				else if(data.get(i) instanceof Float) {
 					dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));
