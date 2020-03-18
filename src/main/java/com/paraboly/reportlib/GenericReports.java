@@ -32,6 +32,7 @@ public class GenericReports {
 		private ChartProps chartProps;
 		private LinkedList<String> addToTotalSumList;
 		private String totalSumTitle;
+		private Boolean disableBottomRow = false;
 	}
 
 	@Data
@@ -131,7 +132,7 @@ public class GenericReports {
 				map.put(columnName,
 						new ColumnDefinition<String>(
 								columnMetadata.getColumnSize(), columnName.toUpperCase(), fieldStyle, headerStyle,
-								columnMetadata.getBottomCalculation()));
+								columnMetadata.getBottomCalculation(), reportData.getDisableBottomRow()));
 			});
 
 			for (Object data: reportData.getElementList()) {
@@ -166,13 +167,15 @@ public class GenericReports {
 		private int startOffsetX;
 		private int startOffsetY;
 		private String bottomCalculation;
+		private Boolean disableBottomRow;
 
-		public ColumnDefinition(int columnSize, String column, CellStyle columnStyle, CellStyle headerStyle, String bottomCalculation) {
+		public ColumnDefinition(int columnSize, String column, CellStyle columnStyle, CellStyle headerStyle, String bottomCalculation, Boolean disableBottomRow) {
 			this.columnSize = columnSize;
 			this.column = column;
 			this.columnStyle = columnStyle;
 			this.headerStyle = headerStyle;
 			this.bottomCalculation = bottomCalculation;
+			this.disableBottomRow = disableBottomRow;
 			data = new ArrayList<T>();
 		}
 
@@ -251,12 +254,14 @@ public class GenericReports {
 							stringsCount++;
 						}
 					}
-					if (bottomCalculation == null || bottomCalculation.equals("sum"))
-						dataCell.setCellValue(sum);
-					else if (bottomCalculation != null && bottomCalculation.equals("avg"))
-						dataCell.setCellValue(sum / data.size());
-					if (bottomCalculation != null && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
-						dataCell.setCellValue(bottomCalculation.split(":")[1]);
+					if (!disableBottomRow) {
+						if (bottomCalculation == null || bottomCalculation.equals("sum"))
+							dataCell.setCellValue(sum);
+						else if (bottomCalculation != null && bottomCalculation.equals("avg"))
+							dataCell.setCellValue(sum / data.size());
+						if (bottomCalculation != null && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
+							dataCell.setCellValue(bottomCalculation.split(":")[1]);
+						}
 					}
 				}
 				else if(data.get(i) instanceof Float) {
