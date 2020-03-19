@@ -282,7 +282,7 @@ public class GenericReports {
 					dataCell.setCellValue(Integer.parseInt(data.get(i).toString()));
 				}
 				else if (data.get(i) instanceof BigDecimal) {
-					dataCell.setCellValue(NumberFormat.getNumberInstance().format(data.get(i)));
+					dataCell.setCellValue(((BigDecimal) data.get(i)).doubleValue());
 				}
 				else if (data.get(i) != null) {
 					dataCell.setCellValue(data.get(i).toString());
