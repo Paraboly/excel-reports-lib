@@ -12,6 +12,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -278,6 +280,9 @@ public class GenericReports {
 				}
 				else if(data.get(i) instanceof Integer) {
 					dataCell.setCellValue(Integer.parseInt(data.get(i).toString()));
+				}
+				else if (data.get(i) instanceof BigDecimal) {
+					dataCell.setCellValue(NumberFormat.getNumberInstance().format(data.get(i)));
 				}
 				else if (data.get(i) != null) {
 					dataCell.setCellValue(data.get(i).toString());
