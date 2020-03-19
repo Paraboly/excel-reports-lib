@@ -41,7 +41,7 @@ public class GenericReports {
 		private Function customFunction;
 		private Integer columnSize = 1;
 		private String bottomCalculation = "sum"; // potential values are sum, avg, or string:BOTTOM_NAME
-		private String cellContent = "money"; // potential values are money, percentage, count
+		private String cellContent = "money"; // potential values are money, percentage, count, year
 	}
 
 	@Data
@@ -115,6 +115,10 @@ public class GenericReports {
 			countStyle.cloneStyleFrom(dataStyle);
 			setCount(sheet, countStyle);
 
+			CellStyle yearStyle = sheet.getWorkbook().createCellStyle();
+			yearStyle.cloneStyleFrom(dataStyle);
+			setYear(sheet, yearStyle);
+
 			LinkedHashMap<String, ColumnDefinition> map = new LinkedHashMap<>();
 			reportData.getColumnToMetadataMapping().forEach((columnName, columnMetadata) -> {
 				CellStyle fieldStyle = null;
@@ -127,6 +131,9 @@ public class GenericReports {
 						break;
 					case "count":
 						fieldStyle = countStyle;
+						break;
+					case "year":
+						fieldStyle = yearStyle;
 						break;
 				}
 				map.put(columnName,
@@ -269,11 +276,11 @@ public class GenericReports {
 				else if(data.get(i) instanceof Float) {
 					dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));
 				}
-				else if(data.get(i) instanceof String) {
-					dataCell.setCellValue(data.get(i).toString());
-				}
 				else if(data.get(i) instanceof Integer) {
 					dataCell.setCellValue(Integer.parseInt(data.get(i).toString()));
+				}
+				else {
+					dataCell.setCellValue(data.get(i).toString());
 				}
 			}
 			offsetYCounter += data.size();

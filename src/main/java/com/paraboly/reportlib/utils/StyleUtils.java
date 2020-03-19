@@ -81,6 +81,11 @@ public class StyleUtils {
 		cellStyle.setDataFormat(format.getFormat("#,##0"));
 	}
 
+	public static void setYear(Sheet sheet, CellStyle cellStyle) {
+		DataFormat format = sheet.getWorkbook().createDataFormat();
+		cellStyle.setDataFormat(format.getFormat("0"));
+	}
+
 	public static void setPercentage(Sheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat(BuiltinFormats.getBuiltinFormat(10)));
