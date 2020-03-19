@@ -279,7 +279,7 @@ public class GenericReports {
 				else if(data.get(i) instanceof Integer) {
 					dataCell.setCellValue(Integer.parseInt(data.get(i).toString()));
 				}
-				else {
+				else if (data.get(i) != null) {
 					dataCell.setCellValue(data.get(i).toString());
 				}
 			}
