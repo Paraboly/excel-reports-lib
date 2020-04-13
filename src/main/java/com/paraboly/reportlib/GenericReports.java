@@ -5,9 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.util.IOUtils;
-import org.apache.poi.xssf.usermodel.XSSFDrawing;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +33,7 @@ public class GenericReports {
 		private LinkedList<String> addToTotalSumList;
 		private String totalSumTitle;
 		private Boolean disableBottomRow = false;
+		private String rowColorFunction;
 	}
 
 	@Data
@@ -141,7 +140,7 @@ public class GenericReports {
 				map.put(columnName,
 						new ColumnDefinition<String>(
 								columnMetadata.getColumnSize(), columnName.toUpperCase(), fieldStyle, headerStyle,
-								columnMetadata.getBottomCalculation(), reportData.getDisableBottomRow()));
+								columnMetadata.getBottomCalculation(), reportData.getDisableBottomRow(), reportData));
 			});
 
 			for (Object data: reportData.getElementList()) {
@@ -149,7 +148,7 @@ public class GenericReports {
 					try {
 						map.get(columnName).getData().add(
 								columnMetadata.getCustomFunction() == null ?
-								data.getClass().getMethod(columnMetadata.getFunctionName()).invoke(data) :
+										data.getClass().getMethod(columnMetadata.getFunctionName()).invoke(data) :
 										invokeCustomMethod(data, columnMetadata.getCustomFunction())
 						);
 					} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -177,14 +176,16 @@ public class GenericReports {
 		private int startOffsetY;
 		private String bottomCalculation;
 		private Boolean disableBottomRow;
+		private ReportData reportData;
 
-		public ColumnDefinition(int columnSize, String column, CellStyle columnStyle, CellStyle headerStyle, String bottomCalculation, Boolean disableBottomRow) {
+		public ColumnDefinition(int columnSize, String column, CellStyle columnStyle, CellStyle headerStyle, String bottomCalculation, Boolean disableBottomRow, ReportData reportData) {
 			this.columnSize = columnSize;
 			this.column = column;
 			this.columnStyle = columnStyle;
 			this.headerStyle = headerStyle;
 			this.bottomCalculation = bottomCalculation;
 			this.disableBottomRow = disableBottomRow;
+			this.reportData = reportData;
 			data = new ArrayList<T>();
 		}
 
@@ -251,8 +252,29 @@ public class GenericReports {
 						bottomStyle.setDataFormat(columnStyle.getDataFormat());
 						dataCell.setCellStyle(bottomStyle);
 					}
-				} else if(columnStyle != null)
-					dataCell.setCellStyle(columnStyle);
+				} else if(columnStyle != null) {
+					if (reportData.getRowColorFunction() != null) {
+						Object row = reportData.getElementList().get(i);
+						String color = null;
+						try {
+							color = (String) row.getClass().getMethod(reportData.getRowColorFunction()).invoke(row);
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();
+						} catch (InvocationTargetException e) {
+							e.printStackTrace();
+						} catch (NoSuchMethodException e) {
+							e.printStackTrace();
+						}
+						XSSFCellStyle xssfCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
+						xssfCellStyle.cloneStyleFrom(columnStyle);
+
+						xssfCellStyle.setFillForegroundColor(new XSSFColor((java.awt.Color.decode(color))));
+						xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+						dataCell.setCellStyle(xssfCellStyle);
+					} else {
+						dataCell.setCellStyle(columnStyle);
+					}
+				}
 
 				if (data.size() == i) {
 					if (!disableBottomRow){
