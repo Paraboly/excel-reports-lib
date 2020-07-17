@@ -306,6 +306,15 @@ public class GenericReports {
 				else if (data.get(i) instanceof BigDecimal) {
 					dataCell.setCellValue(((BigDecimal) data.get(i)).doubleValue());
 				}
+				else if (data.get(i) instanceof String) {
+					dataCell.setCellValue(data.get(i).toString());
+				}
+				else if (data.get(i) instanceof Long) {
+					dataCell.setCellValue((Long) data.get(i));
+				}
+				else if (data.get(i) instanceof Double) {
+					dataCell.setCellValue((Double) data.get(i));
+				}
 				else if (data.get(i) != null) {
 					dataCell.setCellValue(data.get(i).toString());
 				}
