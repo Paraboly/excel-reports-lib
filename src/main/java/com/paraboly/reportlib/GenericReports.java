@@ -20,6 +20,8 @@ import java.util.function.Function;
 
 import static com.paraboly.reportlib.utils.StyleUtils.*;
 
+// build
+
 public class GenericReports {
 	@Data
 	public static class ReportData {
