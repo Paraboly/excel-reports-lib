@@ -283,8 +283,12 @@ public class GenericReports {
 						int stringsCount = 0;
 						for (T element:data) {
 							if (element instanceof Float
-									|| element instanceof Integer) {
-								sum += Float.parseFloat(element.toString());
+									|| element instanceof Integer
+									|| element instanceof Long
+									|| element instanceof Double
+									|| element instanceof BigDecimal
+							) {
+								sum += Double.parseDouble(element.toString());
 							} else {
 								stringsCount++;
 							}
