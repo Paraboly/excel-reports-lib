@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 import static com.paraboly.reportlib.utils.StyleUtils.*;
@@ -376,18 +377,18 @@ public class GenericReports {
 		}
 
 		private void addTotalSumCell(Sheet sheet) {
-			AtomicInteger totalSum = new AtomicInteger();
+			AtomicLong totalSum = new AtomicLong();
 			reportData.getAddToTotalSumList().forEach((key) -> {
 				String methodName = reportData.getColumnToMetadataMapping().get(key).getFunctionName();
 				for (Object data: reportData.getElementList()) {
 					try {
-						totalSum.addAndGet((int) (float) data.getClass().getMethod(methodName).invoke(data));
+						totalSum.addAndGet((long)(double)data.getClass().getMethod(methodName).invoke(data));
 					} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 						e.printStackTrace();
 					}
 				}
 			});
-			int summedValue = totalSum.get();
+			long summedValue = totalSum.get();
 			int offsetY = startOffsetY + columnDefinitionList.size() + 1;
 			Row totalRow = sheet.createRow(offsetY);
 			CellRangeAddress region = new CellRangeAddress(offsetY, offsetY, startOffsetX, startOffsetX + 1);
