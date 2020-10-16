@@ -280,7 +280,7 @@ public class GenericReports {
 
 				if (data.size() == i) {
 					if (!disableBottomRow){
-						float sum = 0.0f;
+						double sum = 0;
 						int stringsCount = 0;
 						for (T element:data) {
 							if (element instanceof Float
