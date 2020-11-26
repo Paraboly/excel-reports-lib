@@ -275,7 +275,7 @@ public class GenericReports {
 
 						xssfCellStyle.setFillForegroundColor(new XSSFColor((java.awt.Color.decode(color))));
 						xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-						dataCell.setCellStyle(xssfCellStyle);
+//						dataCell.setCellStyle(xssfCellStyle);
 						formatter.formatCellValue(dataCell);
 					} else {
 						dataCell.setCellStyle(columnStyle);
