@@ -11,10 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.NumberFormat;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
@@ -270,9 +270,13 @@ public class GenericReports {
 						XSSFCellStyle xssfCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
 						xssfCellStyle.cloneStyleFrom(columnStyle);
 
+						DataFormatter formatter = new DataFormatter(Locale.forLanguageTag("tr-TR"));
+						formatter.addFormat("#.##0", new DecimalFormat());
+
 						xssfCellStyle.setFillForegroundColor(new XSSFColor((java.awt.Color.decode(color))));
 						xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 						dataCell.setCellStyle(xssfCellStyle);
+						formatter.formatCellValue(dataCell);
 					} else {
 						dataCell.setCellStyle(columnStyle);
 					}
