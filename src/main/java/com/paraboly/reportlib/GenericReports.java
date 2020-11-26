@@ -271,7 +271,7 @@ public class GenericReports {
 						xssfCellStyle.cloneStyleFrom(columnStyle);
 
 						DataFormatter formatter = new DataFormatter(Locale.forLanguageTag("tr-TR"));
-						formatter.addFormat("#.##0", new DecimalFormat());
+						formatter.addFormat("#.##0", new DecimalFormat("#.##0"));
 
 						xssfCellStyle.setFillForegroundColor(new XSSFColor((java.awt.Color.decode(color))));
 						xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
