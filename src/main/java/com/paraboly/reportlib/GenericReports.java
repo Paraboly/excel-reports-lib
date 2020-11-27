@@ -107,8 +107,7 @@ public class GenericReports {
 			CellStyle headerStyle = getHeaderRowStyle(sheet);
 
 			CellStyle currencyStyle = sheet.getWorkbook().createCellStyle();
-			DataFormat dataformat = sheet.getWorkbook().createDataFormat();
-			currencyStyle.setDataFormat(dataformat.getFormat("#.##0"));
+
 			currencyStyle.cloneStyleFrom(dataStyle);
 
 			setCurrency(sheet, currencyStyle);
