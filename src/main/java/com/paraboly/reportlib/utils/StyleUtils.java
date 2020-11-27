@@ -73,7 +73,7 @@ public class StyleUtils {
 
 	public static void setCurrency(Sheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
-		cellStyle.setDataFormat(format.getFormat("#,##0"));
+		cellStyle.setDataFormat(format.getFormat("#.##0"));
 	}
 
 	public static void setCount(Sheet sheet, CellStyle cellStyle) {
