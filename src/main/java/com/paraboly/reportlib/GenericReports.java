@@ -107,7 +107,10 @@ public class GenericReports {
 			CellStyle headerStyle = getHeaderRowStyle(sheet);
 
 			CellStyle currencyStyle = sheet.getWorkbook().createCellStyle();
+			DataFormat dataformat = sheet.getWorkbook().createDataFormat();
+			currencyStyle.setDataFormat(dataformat.getFormat("#.##0"));
 			currencyStyle.cloneStyleFrom(dataStyle);
+
 			setCurrency(sheet, currencyStyle);
 
 			CellStyle percentageStyle = sheet.getWorkbook().createCellStyle();
@@ -270,13 +273,13 @@ public class GenericReports {
 						XSSFCellStyle xssfCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
 						xssfCellStyle.cloneStyleFrom(columnStyle);
 
-						DataFormatter formatter = new DataFormatter(Locale.forLanguageTag("tr-TR"));
-						formatter.addFormat("#.##0", new DecimalFormat("#.##0"));
+//						DataFormatter formatter = new DataFormatter(Locale.forLanguageTag("tr-TR"));
+//						formatter.addFormat("#.##0", new DecimalFormat("#.##0"));
 
 						xssfCellStyle.setFillForegroundColor(new XSSFColor((java.awt.Color.decode(color))));
 						xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//						dataCell.setCellStyle(xssfCellStyle);
-						formatter.formatCellValue(dataCell);
+						dataCell.setCellStyle(xssfCellStyle);
+//						formatter.formatCellValue(dataCell);
 					} else {
 						dataCell.setCellStyle(columnStyle);
 					}
