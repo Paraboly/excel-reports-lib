@@ -35,6 +35,7 @@ public class StyleUtils {
 		cellStyle.setBorderBottom(BorderStyle.THIN);
 		cellStyle.setBorderLeft(BorderStyle.THIN);
 		cellStyle.setBorderRight(BorderStyle.THIN);
+		cellStyle.setWrapText(true);
 		cellStyle.setFont(getBoldFont(sheet));
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat("#,##0.00"));

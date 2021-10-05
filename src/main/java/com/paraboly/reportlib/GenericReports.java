@@ -6,6 +6,9 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.*;
+import org.jfree.chart.labels.PieSectionLabelGenerator;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.chart.plot.PiePlot3D;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -423,7 +426,6 @@ public class GenericReports {
 				InputStream imageStream = drawer.getInputStream();
 				pictureIndex =
 						sheet.getWorkbook().addPicture(IOUtils.toByteArray(imageStream), Workbook.PICTURE_TYPE_JPEG);
-
 				XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
 				CreationHelper helper = sheet.getWorkbook().getCreationHelper();
 				ClientAnchor anchor = helper.createClientAnchor();

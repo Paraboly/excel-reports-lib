@@ -2,14 +2,21 @@ package com.paraboly.reportlib;
 
 import lombok.SneakyThrows;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.labels.PieSectionLabelGenerator;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.chart.plot.DefaultDrawingSupplier;
+import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.util.DefaultShadowGenerator;
 import org.jfree.chart.util.TableOrder;
 import org.jfree.data.category.CategoryToPieDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +25,44 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class ChartDrawingService {
+
+	public class ChartDrawingSupplier extends DefaultDrawingSupplier {
+
+		public Paint[] paintSequence;
+		public int paintIndex;
+		public int fillPaintIndex;
+
+		{
+			paintSequence =  new Paint[] {
+					new Color(78, 127, 187),
+					new Color(189,79, 76),
+					new Color(153,185,88),
+					new Color(126,99,159),
+					new Color(230,218,119),
+					new Color(60,201,178),
+					new Color(214,158,36),
+					new Color(240,117,225)
+			};
+		}
+
+		@Override
+		public Paint getNextPaint() {
+			Paint result
+					= paintSequence[paintIndex % paintSequence.length];
+			paintIndex++;
+			return result;
+		}
+
+
+		@Override
+		public Paint getNextFillPaint() {
+			Paint result
+					= paintSequence[fillPaintIndex % paintSequence.length];
+			fillPaintIndex++;
+			return result;
+		}
+	}
+
 	private DefaultCategoryDataset dataset;
 	private String title, categoryLabel, valueLabel;
 	private JFreeChart chart;
@@ -67,7 +112,7 @@ public class ChartDrawingService {
 				chart = drawPieChart();
 				break;
 			default:
-				throw new Exception("Chart type unsupported");
+				break;
 		}
 	}
 
@@ -79,12 +124,25 @@ public class ChartDrawingService {
 				true,true,false);
 		barChartObject.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
 		barChartObject.getCategoryPlot().getDomainAxis().setMaximumCategoryLabelLines(2);
+		barChartObject.getPlot().setBackgroundPaint(Color.white);
+		barChartObject.getPlot().setDrawingSupplier(new ChartDrawingSupplier());
 		return barChartObject;
 	}
 
 	private JFreeChart drawPieChart() {
 		CategoryToPieDataset pieDataset = new CategoryToPieDataset(dataset, TableOrder.BY_ROW, 0);
-		JFreeChart pieChartObject = ChartFactory.createPieChart(title, pieDataset);
+		JFreeChart pieChartObject = ChartFactory.createPieChart3D(title, pieDataset,true,true,false);
+		final PieSectionLabelGenerator labelGenerator = new StandardPieSectionLabelGenerator("{0} ({2})");
+		final PiePlot3D plot = (PiePlot3D) pieChartObject.getPlot();
+		final ChartPanel chartPanel = new ChartPanel(pieChartObject);
+		chartPanel.setPreferredSize(new java.awt.Dimension(500, 100));
+		plot.setLabelGenerator(labelGenerator);
+		plot.setBackgroundPaint(Color.white);
+		plot.setForegroundAlpha(0.8f);
+		plot.setShadowGenerator(new DefaultShadowGenerator(5, Color.decode("#c4c4c4"),0.5f, 4,Math.PI/11));
+		plot.setDrawingSupplier(new ChartDrawingSupplier());
+		plot.setLabelBackgroundPaint(Color.white);
+
 		return pieChartObject;
 	}
 
