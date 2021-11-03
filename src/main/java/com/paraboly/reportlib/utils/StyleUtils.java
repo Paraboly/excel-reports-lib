@@ -60,7 +60,7 @@ public class StyleUtils {
 		cellStyle.setBorderBottom(BorderStyle.DOUBLE);
 		cellStyle.setBorderLeft(BorderStyle.THIN);
 		cellStyle.setBorderRight(BorderStyle.THIN);
-		cellStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+		cellStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
 		cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 //        cellStyle.setFillBackgroundColor(IndexedColors.YELLOW.getIndex());
 		cellStyle.setFont(getHeaderFont(sheet));
