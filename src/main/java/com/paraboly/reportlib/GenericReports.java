@@ -83,7 +83,7 @@ public class GenericReports {
 				XSSFSheet sheet = wb.createSheet(reportData.getReportType());
 				TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
 				tableMapperExtended.setStartOffsetX(0);
-				tableMapperExtended.setStartOffsetY(2);
+				tableMapperExtended.setStartOffsetY(0);
 				tableMapperExtended.write(sheet);
 				if (reportData.chartPropsLinkedList != null) {
 					AtomicInteger i = new AtomicInteger(0);
