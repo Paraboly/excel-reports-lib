@@ -373,7 +373,7 @@ public class GenericReports {
 
 			Cell headerRowCell = headerRow.createCell(startOffsetX);
 			headerRowCell.setCellStyle(getHeaderStyle(sheet));
-			headerRowCell.setCellValue(header + " Tablosu");
+			headerRowCell.setCellValue(header);
 
 			offsetXCounter = startOffsetX;
 			for (int i = 0; i < columnDefinitionList.size(); i++) {
