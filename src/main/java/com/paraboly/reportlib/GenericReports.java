@@ -81,6 +81,7 @@ public class GenericReports {
 		public static XSSFWorkbook create() {
 			for (ReportData reportData: reportDataList) {
 				XSSFSheet sheet = wb.createSheet(reportData.getReportType());
+				sheet.setZoom(68);
 				TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
 				tableMapperExtended.setStartOffsetX(0);
 				tableMapperExtended.setStartOffsetY(0);
