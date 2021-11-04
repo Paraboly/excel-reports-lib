@@ -10,7 +10,7 @@ public class StyleUtils {
 	private static Font getBoldFont(Sheet sheet) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
-		font.setFontHeightInPoints((short) 11);
+		font.setFontHeightInPoints((short) 14);
 		font.setFontName("Times New Roman");
 		return font;
 	}
@@ -18,7 +18,7 @@ public class StyleUtils {
 	private static Font getHeaderFont(Sheet sheet) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
-		font.setFontHeightInPoints((short) 12);
+		font.setFontHeightInPoints((short) 14);
 		font.setFontName("Times New Roman");
 		return font;
 	}
