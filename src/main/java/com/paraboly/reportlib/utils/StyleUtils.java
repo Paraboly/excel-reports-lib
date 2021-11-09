@@ -15,6 +15,14 @@ public class StyleUtils {
 		return font;
 	}
 
+	private static Font getTitleBoldFont(Sheet sheet) {
+		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
+		font.setBold(true);
+		font.setFontHeightInPoints((short) 16);
+		font.setFontName("Times New Roman");
+		return font;
+	}
+
 	private static Font getHeaderFont(Sheet sheet) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
@@ -22,6 +30,15 @@ public class StyleUtils {
 		font.setFontName("Times New Roman");
 		return font;
 	}
+	public static CellStyle getTitleHeaderStyle(Sheet sheet) {
+		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		cellStyle.setAlignment(HorizontalAlignment.CENTER);
+		cellStyle.setFont(getTitleBoldFont(sheet));
+		return cellStyle;
+	}
+
+
 
 	public static CellStyle getHeaderStyle(Sheet sheet) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();

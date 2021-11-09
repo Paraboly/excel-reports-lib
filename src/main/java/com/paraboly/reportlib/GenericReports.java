@@ -37,6 +37,8 @@ public class GenericReports {
 		private Integer headerEndOffsetX;
 		private Integer headerStartOffsetY;
 		private Integer headerEndOffsetY;
+		private String biddingType;
+		private String biddingProcedure;
 		private LinkedList<ChartProps> chartPropsLinkedList;
 		private ChartProps chartProps;
 		private LinkedList<String> addToTotalSumList;
@@ -85,11 +87,13 @@ public class GenericReports {
 		public static XSSFWorkbook create() {
 			for (ReportData reportData: reportDataList) {
 				XSSFSheet sheet = wb.createSheet(reportData.getReportType());
-				sheet.setZoom(60);
+				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+					sheet.setZoom(60);
+				}
 				TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
 				tableMapperExtended.setStartOffsetX(0);
 				tableMapperExtended.setStartOffsetY(0);
-				tableMapperExtended.write(sheet, reportData, reportData.headerStartOffsetX, reportData.headerEndOffsetX, reportData.headerStartOffsetY, reportData.headerEndOffsetY);
+				tableMapperExtended.write(sheet, reportData);
 				if (reportData.chartPropsLinkedList != null) {
 					AtomicInteger i = new AtomicInteger(0);
 					reportData.chartPropsLinkedList.forEach(chartProps -> {
@@ -169,8 +173,7 @@ public class GenericReports {
 				});
 			}
 
-			return new TableMapperExtended(reportData.getReportType(), new ArrayList<>(map.values()), reportData, reportData.headerStartOffsetX,
-					reportData.headerEndOffsetX, reportData.headerStartOffsetY, reportData.headerEndOffsetY);
+			return new TableMapperExtended(reportData.getReportType(), new ArrayList<>(map.values()), reportData);
 		}
 
 		private static Object invokeCustomMethod(Object data, Function function) {
@@ -356,19 +359,11 @@ public class GenericReports {
 		private int startOffsetX;
 
 		private int offsetXCounter;
-		private Integer headerStartOffsetX;
-		private Integer headerEndOffsetX;
-		private Integer headerStartOffsetY;
-		private Integer headerEndOffsetY;
 
-		public TableMapperExtended(String header, List<ColumnDefinition> columnDefinitionList, ReportData reportData, Integer headerStartOffsetX, Integer headerEndOffsetX, Integer headerStartOffsetY, Integer headerEndOffsetY) {
+		public TableMapperExtended(String header, List<ColumnDefinition> columnDefinitionList, ReportData reportData) {
 			this.header = header;
 			this.columnDefinitionList = columnDefinitionList;
 			this.reportData = reportData;
-			this.headerStartOffsetX = headerStartOffsetX;
-			this.headerEndOffsetX = headerEndOffsetX;
-			this.headerStartOffsetY = headerStartOffsetY;
-			this.headerEndOffsetY = headerEndOffsetY;
 		}
 
 		public void setStartOffsetY(int startOffsetY) {
@@ -379,24 +374,40 @@ public class GenericReports {
 			this.startOffsetX = startOffsetX;
 		}
 
-		public void write(Sheet sheet, ReportData reportData, Integer headerStartOffsetX, Integer headerEndOffsetX, Integer headerStartOffsetY, Integer headerEndOffsetY) {
-			CellRangeAddress region = new CellRangeAddress(headerStartOffsetY, headerEndOffsetY, headerStartOffsetX, headerEndOffsetX);
-			sheet.addMergedRegion(region);
-			RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
-			RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
-			RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
-			RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
-			Row headerRow = sheet.getRow(startOffsetY);
-			if(headerRow == null) {
-				headerRow = sheet.createRow(startOffsetY);
-			}
-			String title = reportData.year.toString() + "\n"
-					+ header + "\n";
-			Cell headerRowCell = headerRow.createCell(startOffsetX);
-			headerRowCell.setCellStyle(getHeaderStyle(sheet));
-			headerRowCell.setCellValue(title);
+		public void write(Sheet sheet, ReportData reportData) {
+			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+				CellRangeAddress region = new CellRangeAddress(reportData.headerStartOffsetY, reportData.headerEndOffsetY, reportData.headerStartOffsetX, reportData.headerEndOffsetX);
+				sheet.addMergedRegion(region);
+				RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
+				RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
+				RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
+				RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
+				Row headerRow = sheet.getRow(startOffsetY);
+				if(headerRow == null) {
+					headerRow = sheet.createRow(startOffsetY);
+				}
+				String title = reportData.year.toString()+" YILI" + "\n"
+						+ header + "\n"
+						+ (reportData.biddingType.equals("Veri Girilmemiştir") ? "": reportData.biddingType+", ")
+						+ (reportData.biddingProcedure.equals("Veri Girilmemiştir") ? "": reportData.biddingProcedure);
+				Cell headerRowCell = headerRow.createCell(startOffsetX);
+				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet));
+				headerRowCell.setCellValue(title);
 
-			offsetXCounter = startOffsetX;
+				offsetXCounter = startOffsetX;
+				startOffsetY = reportData.headerEndOffsetY;
+			}else{
+				Row headerRow = sheet.getRow(startOffsetY);
+				if(headerRow == null) {
+					headerRow = sheet.createRow(startOffsetY);
+				}
+				Cell headerRowCell = headerRow.createCell(startOffsetX);
+				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet));
+				headerRowCell.setCellValue(header);
+
+				offsetXCounter = startOffsetX;
+			}
+
 			for (int i = 0; i < columnDefinitionList.size(); i++) {
 				columnDefinitionList.get(i).write(sheet, startOffsetY + 1, offsetXCounter);
 				offsetXCounter += columnDefinitionList.get(i).getColumnSize();
