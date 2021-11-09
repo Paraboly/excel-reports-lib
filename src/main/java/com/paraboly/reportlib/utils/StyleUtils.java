@@ -29,12 +29,28 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
+	public static CellStyle getBorderedCellStyle(Sheet sheet) {
+		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+		cellStyle.setBorderTop(BorderStyle.THIN);
+		cellStyle.setBorderBottom(BorderStyle.THIN);
+		cellStyle.setBorderLeft(BorderStyle.THIN);
+		cellStyle.setBorderRight(BorderStyle.THIN);
+		cellStyle.setAlignment(HorizontalAlignment.CENTER);
+		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		cellStyle.setWrapText(true);
+		DataFormat format = sheet.getWorkbook().createDataFormat();
+		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
+		return cellStyle;
+	}
+
 	public static CellStyle getBorderedBoldCellStyle(Sheet sheet) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
 		cellStyle.setBorderBottom(BorderStyle.THIN);
 		cellStyle.setBorderLeft(BorderStyle.THIN);
 		cellStyle.setBorderRight(BorderStyle.THIN);
+		cellStyle.setAlignment(HorizontalAlignment.CENTER);
+		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setWrapText(true);
 		cellStyle.setFont(getBoldFont(sheet));
 		DataFormat format = sheet.getWorkbook().createDataFormat();

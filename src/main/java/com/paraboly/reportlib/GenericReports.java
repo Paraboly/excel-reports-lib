@@ -214,7 +214,7 @@ public class GenericReports {
 		}
 
 		public void write(Sheet sheet, int startOffsetY, int startOffsetX) {
-			sheet.setDefaultColumnWidth(17);
+			sheet.setDefaultColumnWidth(3);
 			this.startOffsetX = startOffsetX;
 			this.startOffsetY = startOffsetY;
 
