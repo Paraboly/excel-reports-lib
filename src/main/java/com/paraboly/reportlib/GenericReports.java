@@ -33,6 +33,10 @@ public class GenericReports {
 		private LinkedHashMap<String, ColumnMetadata> columnToMetadataMapping;
 		private String reportType;
 		private Integer year;
+		private Integer headerStartOffsetX;
+		private Integer headerEndOffsetX;
+		private Integer headerStartOffsetY;
+		private Integer headerEndOffsetY;
 		private LinkedList<ChartProps> chartPropsLinkedList;
 		private ChartProps chartProps;
 		private LinkedList<String> addToTotalSumList;
@@ -85,7 +89,7 @@ public class GenericReports {
 				TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
 				tableMapperExtended.setStartOffsetX(0);
 				tableMapperExtended.setStartOffsetY(0);
-				tableMapperExtended.write(sheet);
+				tableMapperExtended.write(sheet, reportData, reportData.headerStartOffsetX, reportData.headerEndOffsetX, reportData.headerStartOffsetY, reportData.headerEndOffsetY);
 				if (reportData.chartPropsLinkedList != null) {
 					AtomicInteger i = new AtomicInteger(0);
 					reportData.chartPropsLinkedList.forEach(chartProps -> {
@@ -165,7 +169,8 @@ public class GenericReports {
 				});
 			}
 
-			return new TableMapperExtended(reportData.getReportType(), new ArrayList<>(map.values()), reportData);
+			return new TableMapperExtended(reportData.getReportType(), new ArrayList<>(map.values()), reportData, reportData.headerStartOffsetX,
+					reportData.headerEndOffsetX, reportData.headerStartOffsetY, reportData.headerEndOffsetY);
 		}
 
 		private static Object invokeCustomMethod(Object data, Function function) {
@@ -351,11 +356,19 @@ public class GenericReports {
 		private int startOffsetX;
 
 		private int offsetXCounter;
+		private Integer headerStartOffsetX;
+		private Integer headerEndOffsetX;
+		private Integer headerStartOffsetY;
+		private Integer headerEndOffsetY;
 
-		public TableMapperExtended(String header, List<ColumnDefinition> columnDefinitionList, ReportData reportData) {
+		public TableMapperExtended(String header, List<ColumnDefinition> columnDefinitionList, ReportData reportData, Integer headerStartOffsetX, Integer headerEndOffsetX, Integer headerStartOffsetY, Integer headerEndOffsetY) {
 			this.header = header;
 			this.columnDefinitionList = columnDefinitionList;
 			this.reportData = reportData;
+			this.headerStartOffsetX = headerStartOffsetX;
+			this.headerEndOffsetX = headerEndOffsetX;
+			this.headerStartOffsetY = headerStartOffsetY;
+			this.headerEndOffsetY = headerEndOffsetY;
 		}
 
 		public void setStartOffsetY(int startOffsetY) {
@@ -366,15 +379,22 @@ public class GenericReports {
 			this.startOffsetX = startOffsetX;
 		}
 
-		public void write(Sheet sheet) {
+		public void write(Sheet sheet, ReportData reportData, Integer headerStartOffsetX, Integer headerEndOffsetX, Integer headerStartOffsetY, Integer headerEndOffsetY) {
+			CellRangeAddress region = new CellRangeAddress(headerStartOffsetY, headerEndOffsetY, headerStartOffsetX, headerEndOffsetX);
+			sheet.addMergedRegion(region);
+			RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
+			RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
+			RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
+			RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
 			Row headerRow = sheet.getRow(startOffsetY);
 			if(headerRow == null) {
 				headerRow = sheet.createRow(startOffsetY);
 			}
-
+			String title = reportData.year.toString() + "\n"
+					+ header + "\n";
 			Cell headerRowCell = headerRow.createCell(startOffsetX);
 			headerRowCell.setCellStyle(getHeaderStyle(sheet));
-			headerRowCell.setCellValue(header);
+			headerRowCell.setCellValue(title);
 
 			offsetXCounter = startOffsetX;
 			for (int i = 0; i < columnDefinitionList.size(); i++) {

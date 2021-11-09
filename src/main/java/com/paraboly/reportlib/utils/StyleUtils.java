@@ -25,6 +25,8 @@ public class StyleUtils {
 
 	public static CellStyle getHeaderStyle(Sheet sheet) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		cellStyle.setAlignment(HorizontalAlignment.CENTER);
 		cellStyle.setFont(getBoldFont(sheet));
 		return cellStyle;
 	}
