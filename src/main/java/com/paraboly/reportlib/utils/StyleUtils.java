@@ -3,6 +3,9 @@ package com.paraboly.reportlib.utils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 /**
  * Need to add builder
  */
@@ -33,6 +36,7 @@ public class StyleUtils {
 	public static CellStyle getTitleHeaderStyle(Sheet sheet) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		cellStyle.setWrapText(true);
 		cellStyle.setAlignment(HorizontalAlignment.CENTER);
 		cellStyle.setFont(getTitleBoldFont(sheet));
 		return cellStyle;
@@ -77,6 +81,21 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
+	public static CellStyle getBorderedBoldCurrencyCellStyle(Sheet sheet) {
+		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+		cellStyle.setBorderTop(BorderStyle.THIN);
+		cellStyle.setBorderBottom(BorderStyle.THIN);
+		cellStyle.setBorderLeft(BorderStyle.THIN);
+		cellStyle.setBorderRight(BorderStyle.THIN);
+		cellStyle.setAlignment(HorizontalAlignment.RIGHT);
+		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		cellStyle.setWrapText(true);
+		cellStyle.setFont(getBoldFont(sheet));
+		DataFormat format = sheet.getWorkbook().createDataFormat();
+		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
+		return cellStyle;
+	}
+
 	public static CellStyle getBorderedBoldCellStyleWithBackgroundColor(Sheet sheet, short bg) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
@@ -109,7 +128,7 @@ public class StyleUtils {
 
 	public static void setCurrency(Sheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
-		cellStyle.setDataFormat(format.getFormat("#,##0"));
+		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 	}
 
 	public static void setCount(Sheet sheet, CellStyle cellStyle) {
@@ -120,6 +139,11 @@ public class StyleUtils {
 	public static void setYear(Sheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat("0"));
+	}
+
+	public static void setText(Sheet sheet, CellStyle cellStyle) {
+		DataFormat format = sheet.getWorkbook().createDataFormat();
+		cellStyle.setDataFormat(format.getFormat(""));
 	}
 
 	public static void setPercentage(Sheet sheet, CellStyle cellStyle) {

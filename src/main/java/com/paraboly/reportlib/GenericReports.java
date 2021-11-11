@@ -52,8 +52,10 @@ public class GenericReports {
 		private String functionName;
 		private Function customFunction;
 		private Integer columnSize = 1;
-		private String bottomCalculation = "sum"; // potential values are sum, avg, or string:BOTTOM_NAME
-		private String cellContent = "money"; // potential values are money, percentage, count, year
+		private String bottomCalculation = "string:"; // potential values are sum, avg, or string:BOTTOM_NAME
+		private String bottomCalculationText = "";
+		private String bottomValue;
+		private String cellContent = "text"; // potential values are money, percentage, count, year
 	}
 
 	@Data
@@ -117,11 +119,10 @@ public class GenericReports {
 		private static TableMapperExtended getReportTable(ReportData reportData, XSSFSheet sheet) {
 			CellStyle dataStyle = getBorderedBoldCellStyle(sheet);
 			CellStyle headerStyle = getHeaderRowStyle(sheet);
+			CellStyle currStyle = getBorderedBoldCurrencyCellStyle(sheet);
 
 			CellStyle currencyStyle = sheet.getWorkbook().createCellStyle();
-
-			currencyStyle.cloneStyleFrom(dataStyle);
-
+			currencyStyle.cloneStyleFrom(currStyle);
 			setCurrency(sheet, currencyStyle);
 
 			CellStyle percentageStyle = sheet.getWorkbook().createCellStyle();
@@ -135,6 +136,10 @@ public class GenericReports {
 			CellStyle yearStyle = sheet.getWorkbook().createCellStyle();
 			yearStyle.cloneStyleFrom(dataStyle);
 			setYear(sheet, yearStyle);
+
+			CellStyle textStyle = sheet.getWorkbook().createCellStyle();
+			textStyle.cloneStyleFrom(dataStyle);
+			setText(sheet, textStyle);
 
 			LinkedHashMap<String, ColumnDefinition> map = new LinkedHashMap<>();
 			reportData.getColumnToMetadataMapping().forEach((columnName, columnMetadata) -> {
@@ -152,11 +157,14 @@ public class GenericReports {
 					case "year":
 						fieldStyle = yearStyle;
 						break;
+					case "text":
+						fieldStyle = textStyle;
+						break;
 				}
 				map.put(columnName,
 						new ColumnDefinition<String>(
 								columnMetadata.getColumnSize(), columnName.toUpperCase(), fieldStyle, headerStyle,
-								columnMetadata.getBottomCalculation(), reportData.getDisableBottomRow(), reportData));
+								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), reportData.getDisableBottomRow(), reportData));
 			});
 
 			for (Object data: reportData.getElementList()) {
@@ -191,15 +199,19 @@ public class GenericReports {
 		private int startOffsetX;
 		private int startOffsetY;
 		private String bottomCalculation;
+		private String bottomCalculationText;
+		private String bottomValue;
 		private Boolean disableBottomRow;
 		private ReportData reportData;
 
-		public ColumnDefinition(int columnSize, String column, CellStyle columnStyle, CellStyle headerStyle, String bottomCalculation, Boolean disableBottomRow, ReportData reportData) {
+		public ColumnDefinition(int columnSize, String column, CellStyle columnStyle, CellStyle headerStyle, String bottomCalculation,String bottomCalculationText, String bottomValue, Boolean disableBottomRow, ReportData reportData) {
 			this.columnSize = columnSize;
 			this.column = column;
 			this.columnStyle = columnStyle;
 			this.headerStyle = headerStyle;
 			this.bottomCalculation = bottomCalculation;
+			this.bottomCalculationText = bottomCalculationText;
+			this.bottomValue = bottomValue;
 			this.disableBottomRow = disableBottomRow;
 			this.reportData = reportData;
 			data = new ArrayList<T>();
@@ -222,7 +234,9 @@ public class GenericReports {
 		}
 
 		public void write(Sheet sheet, int startOffsetY, int startOffsetX) {
-			sheet.setDefaultColumnWidth(10);
+			sheet.setDefaultColumnWidth(14);
+			sheet.setDefaultRowHeight((short) 17.0);
+			sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
 			this.startOffsetX = startOffsetX;
 			this.startOffsetY = startOffsetY;
 
@@ -244,7 +258,6 @@ public class GenericReports {
 			if(headerStyle != null)
 				cell.setCellStyle(headerStyle);
 			offsetYCounter += 1;
-			columnHeaderRow.setHeight((short) -1);
 
 			for (int i = 0; i <= data.size(); i++) {
 				Row dataRow = sheet.getRow(i + offsetYCounter);
@@ -295,6 +308,8 @@ public class GenericReports {
 						dataCell.setCellStyle(columnStyle);
 					}
 				}
+				Locale turkey = new Locale("tr", "TR");
+				NumberFormat turkishLirasFormat = NumberFormat.getCurrencyInstance(turkey);
 
 				if (data.size() == i) {
 					if (!disableBottomRow){
@@ -312,11 +327,18 @@ public class GenericReports {
 								stringsCount++;
 							}
 						}
-						if (bottomCalculation == null || bottomCalculation.equals("sum"))
-							dataCell.setCellValue(sum);
+						if (bottomCalculation == null || bottomCalculation.equals("string:"))
+							dataCell.setCellValue("");
+						else if (bottomCalculation != null && bottomCalculationText.equals("Tenzilat:"))
+							dataCell.setCellValue(bottomCalculationText+"\n"+ "%"+bottomValue);
 						else if (bottomCalculation != null && bottomCalculation.equals("avg"))
-							dataCell.setCellValue(sum / data.size());
-						if (bottomCalculation != null && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
+							dataCell.setCellValue(bottomCalculationText+"\n"+ sum / data.size());
+						else if (bottomCalculation != null && bottomCalculation.equals("count"))
+							dataCell.setCellValue(bottomCalculationText+"\n"+data.size());
+						else if (bottomCalculation != null && bottomCalculation.equals("sum"))
+							dataCell.setCellValue(bottomCalculationText+"\n"+turkishLirasFormat.format(sum).replaceAll("[^0123456789.,]",""));
+
+						if (bottomCalculation != null && !bottomCalculation.equals("string:") && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
 							dataCell.setCellValue(bottomCalculation.split(":")[1]);
 						}
 					}
