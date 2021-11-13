@@ -56,6 +56,7 @@ public class GenericReports {
 		private String bottomCalculationText = "";
 		private String bottomValue;
 		private String cellContent = "text"; // potential values are money, percentage, count, year
+		private String alignment = "CENTER";
 	}
 
 	@Data
@@ -89,7 +90,7 @@ public class GenericReports {
 		public static XSSFWorkbook create() {
 			for (ReportData reportData: reportDataList) {
 				XSSFSheet sheet = wb.createSheet(reportData.getReportType());
-				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+				if(reportData.reportType.equals("Ön Mali Kontrol Liste")){
 					sheet.setZoom(60);
 				}
 				TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
@@ -115,50 +116,87 @@ public class GenericReports {
 			chartProps.setValueLabel(chartProps.getValueKey());
 			return chartProps;
 		}
-
-		private static TableMapperExtended getReportTable(ReportData reportData, XSSFSheet sheet) {
+		private static CellStyle getCellStyle(Sheet sheet, String type, String alignmnet){
 			CellStyle dataStyle = getBorderedBoldCellStyle(sheet);
 			CellStyle headerStyle = getHeaderRowStyle(sheet);
 			CellStyle currStyle = getBorderedBoldCurrencyCellStyle(sheet);
+			if(type.equals("year")){
+				CellStyle yearStyle = sheet.getWorkbook().createCellStyle();
+				yearStyle.cloneStyleFrom(dataStyle);
+				if (alignmnet.equals("RIGHT")){
+					yearStyle.setAlignment(HorizontalAlignment.RIGHT);
+				}else if(alignmnet.equals("LEFT")){
+					yearStyle.setAlignment(HorizontalAlignment.LEFT);
+				}
+				setYear(sheet, yearStyle);
+				return yearStyle;
+			}else if(type.equals("money")){
+				CellStyle currencyStyle = sheet.getWorkbook().createCellStyle();
+				currencyStyle.cloneStyleFrom(currStyle);
+				if (alignmnet.equals("RIGHT")){
+					currencyStyle.setAlignment(HorizontalAlignment.RIGHT);
+				}else if(alignmnet.equals("LEFT")){
+					currencyStyle.setAlignment(HorizontalAlignment.LEFT);
+				}
+				setCurrency(sheet, currencyStyle);
+				return currencyStyle;
+			}else if(type.equals("percentage")){
+				CellStyle percentageStyle = sheet.getWorkbook().createCellStyle();
+				percentageStyle.cloneStyleFrom(dataStyle);
+				if (alignmnet.equals("RIGHT")){
+					percentageStyle.setAlignment(HorizontalAlignment.RIGHT);
+				}else if(alignmnet.equals("LEFT")){
+					percentageStyle.setAlignment(HorizontalAlignment.LEFT);
+				}
+				setPercentage(sheet, percentageStyle);
+				return percentageStyle;
+			}else if(type.equals("count")){
+				CellStyle countStyle = sheet.getWorkbook().createCellStyle();
+				countStyle.cloneStyleFrom(dataStyle);
+				if (alignmnet.equals("RIGHT")){
+					countStyle.setAlignment(HorizontalAlignment.RIGHT);
+				}else if(alignmnet.equals("LEFT")){
+					countStyle.setAlignment(HorizontalAlignment.LEFT);
+				}
+				setCount(sheet, countStyle);
+				return countStyle;
+			}else if(type.equals("text")){
+				CellStyle textStyle = sheet.getWorkbook().createCellStyle();
+				textStyle.cloneStyleFrom(dataStyle);
+				if (alignmnet.equals("RIGHT")){
+					textStyle.setAlignment(HorizontalAlignment.RIGHT);
+				}else if(alignmnet.equals("LEFT")){
+					textStyle.setAlignment(HorizontalAlignment.LEFT);
+				}
+				setText(sheet, textStyle);
+				return textStyle;
+			}
+			else{
+				return headerStyle;
+			}
+		}
 
-			CellStyle currencyStyle = sheet.getWorkbook().createCellStyle();
-			currencyStyle.cloneStyleFrom(currStyle);
-			setCurrency(sheet, currencyStyle);
 
-			CellStyle percentageStyle = sheet.getWorkbook().createCellStyle();
-			percentageStyle.cloneStyleFrom(dataStyle);
-			setPercentage(sheet, percentageStyle);
-
-			CellStyle countStyle = sheet.getWorkbook().createCellStyle();
-			countStyle.cloneStyleFrom(dataStyle);
-			setCount(sheet, countStyle);
-
-			CellStyle yearStyle = sheet.getWorkbook().createCellStyle();
-			yearStyle.cloneStyleFrom(dataStyle);
-			setYear(sheet, yearStyle);
-
-			CellStyle textStyle = sheet.getWorkbook().createCellStyle();
-			textStyle.cloneStyleFrom(dataStyle);
-			setText(sheet, textStyle);
-
+		private static TableMapperExtended getReportTable(ReportData reportData, XSSFSheet sheet) {
 			LinkedHashMap<String, ColumnDefinition> map = new LinkedHashMap<>();
+			CellStyle headerStyle = getHeaderRowStyle(sheet);
 			reportData.getColumnToMetadataMapping().forEach((columnName, columnMetadata) -> {
 				CellStyle fieldStyle = null;
 				switch (columnMetadata.getCellContent()) {
 					case "money":
-						fieldStyle = currencyStyle;
+						fieldStyle = getCellStyle(sheet, "money", columnMetadata.getAlignment());
 						break;
 					case "percentage":
-						fieldStyle = percentageStyle;
+						fieldStyle = getCellStyle(sheet, "percentage", columnMetadata.getAlignment());
 						break;
 					case "count":
-						fieldStyle = countStyle;
+						fieldStyle = getCellStyle(sheet, "count", columnMetadata.getAlignment());
 						break;
 					case "year":
-						fieldStyle = yearStyle;
+						fieldStyle = getCellStyle(sheet, "year", columnMetadata.getAlignment());
 						break;
 					case "text":
-						fieldStyle = textStyle;
+						fieldStyle = getCellStyle(sheet, "text", columnMetadata.getAlignment());
 						break;
 				}
 				map.put(columnName,
@@ -235,8 +273,13 @@ public class GenericReports {
 
 		public void write(Sheet sheet, int startOffsetY, int startOffsetX) {
 			sheet.setDefaultColumnWidth(14);
-			sheet.setDefaultRowHeight((short) 17.0);
-			sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
+			if (this.reportData.reportType.equals("Ön Mali Kontrol Liste")){
+				sheet.setDefaultRowHeight((short) 17.0);
+				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
+			}else if (this.reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
+				sheet.setDefaultRowHeight((short) 8.0);
+				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
+			}
 			this.startOffsetX = startOffsetX;
 			this.startOffsetY = startOffsetY;
 
@@ -397,7 +440,7 @@ public class GenericReports {
 		}
 
 		public void write(Sheet sheet, ReportData reportData) {
-			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+			if(reportData.reportType.equals("Ön Mali Kontrol Liste") || reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
 				CellRangeAddress region = new CellRangeAddress(reportData.headerStartOffsetY, reportData.headerEndOffsetY, reportData.headerStartOffsetX, reportData.headerEndOffsetX);
 				sheet.addMergedRegion(region);
 				RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
@@ -408,10 +451,15 @@ public class GenericReports {
 				if(headerRow == null) {
 					headerRow = sheet.createRow(startOffsetY);
 				}
-				String title = reportData.year.toString()+" YILI" + "\n"
+				String title;
+				if(reportData.reportType.equals("Ön Mali Kontrol Liste")){
+					title = reportData.year.toString()+" YILI" + "\n"
 						+ header + "\n"
 						+ (reportData.biddingType.equals("Veri Girilmemiştir") ? "": reportData.biddingType+", ")
 						+ (reportData.biddingProcedure.equals("Veri Girilmemiştir") ? "": reportData.biddingProcedure);
+				}else{
+					title=header;
+				}
 				Cell headerRowCell = headerRow.createCell(startOffsetX);
 				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet));
 				headerRowCell.setCellValue(title);
