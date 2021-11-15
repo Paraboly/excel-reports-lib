@@ -90,7 +90,7 @@ public class GenericReports {
 		public static XSSFWorkbook create() {
 			for (ReportData reportData: reportDataList) {
 				XSSFSheet sheet = wb.createSheet(reportData.getReportType());
-				if(reportData.reportType.equals("Ön Mali Kontrol Liste")){
+				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 					sheet.setZoom(60);
 				}
 				TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
@@ -273,7 +273,7 @@ public class GenericReports {
 
 		public void write(Sheet sheet, int startOffsetY, int startOffsetX) {
 			sheet.setDefaultColumnWidth(14);
-			if (this.reportData.reportType.equals("Ön Mali Kontrol Liste")){
+			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 				sheet.setDefaultRowHeight((short) 17.0);
 				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
 			}else if (this.reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
@@ -440,7 +440,7 @@ public class GenericReports {
 		}
 
 		public void write(Sheet sheet, ReportData reportData) {
-			if(reportData.reportType.equals("Ön Mali Kontrol Liste") || reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
+			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
 				CellRangeAddress region = new CellRangeAddress(reportData.headerStartOffsetY, reportData.headerEndOffsetY, reportData.headerStartOffsetX, reportData.headerEndOffsetX);
 				sheet.addMergedRegion(region);
 				RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
@@ -452,11 +452,11 @@ public class GenericReports {
 					headerRow = sheet.createRow(startOffsetY);
 				}
 				String title;
-				if(reportData.reportType.equals("Ön Mali Kontrol Liste")){
+				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 					title = reportData.year.toString()+" YILI" + "\n"
 						+ header + "\n"
-						+ (reportData.biddingType.equals("Veri Girilmemiştir") ? "": reportData.biddingType+", ")
-						+ (reportData.biddingProcedure.equals("Veri Girilmemiştir") ? "": reportData.biddingProcedure);
+						+ (reportData.biddingType.equals("Veri Girilmemiştir") ? "": reportData.biddingType.toUpperCase(Locale.ROOT)+", ")
+						+ (reportData.biddingProcedure.equals("Veri Girilmemiştir") ? "": reportData.biddingProcedure.toUpperCase(Locale.ROOT));
 				}else{
 					title=header;
 				}
