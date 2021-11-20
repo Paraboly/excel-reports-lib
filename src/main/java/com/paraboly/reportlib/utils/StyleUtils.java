@@ -10,45 +10,45 @@ import java.util.Locale;
  * Need to add builder
  */
 public class StyleUtils {
-	private static Font getBoldFont(Sheet sheet) {
+	private static Font getBoldFont(Sheet sheet, int size) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
-		font.setFontHeightInPoints((short) 14);
+		font.setFontHeightInPoints((short) size);
 		font.setFontName("Times New Roman");
 		return font;
 	}
 
-	private static Font getTitleBoldFont(Sheet sheet) {
+	private static Font getTitleBoldFont(Sheet sheet, int size) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
-		font.setFontHeightInPoints((short) 16);
+		font.setFontHeightInPoints((short) size);
 		font.setFontName("Times New Roman");
 		return font;
 	}
 
-	private static Font getHeaderFont(Sheet sheet) {
+	private static Font getHeaderFont(Sheet sheet, int size) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
-		font.setFontHeightInPoints((short) 14);
+		font.setFontHeightInPoints((short) size);
 		font.setFontName("Times New Roman");
 		return font;
 	}
-	public static CellStyle getTitleHeaderStyle(Sheet sheet) {
+	public static CellStyle getTitleHeaderStyle(Sheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setWrapText(true);
 		cellStyle.setAlignment(HorizontalAlignment.CENTER);
-		cellStyle.setFont(getTitleBoldFont(sheet));
+		cellStyle.setFont(getTitleBoldFont(sheet,size));
 		return cellStyle;
 	}
 
 
 
-	public static CellStyle getHeaderStyle(Sheet sheet) {
+	public static CellStyle getHeaderStyle(Sheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setAlignment(HorizontalAlignment.CENTER);
-		cellStyle.setFont(getBoldFont(sheet));
+		cellStyle.setFont(getBoldFont(sheet, size));
 		return cellStyle;
 	}
 
@@ -66,7 +66,7 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
-	public static CellStyle getBorderedBoldCellStyle(Sheet sheet) {
+	public static CellStyle getBorderedBoldCellStyle(Sheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
 		cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -75,13 +75,13 @@ public class StyleUtils {
 		cellStyle.setAlignment(HorizontalAlignment.CENTER);
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setWrapText(true);
-		cellStyle.setFont(getBoldFont(sheet));
+		cellStyle.setFont(getBoldFont(sheet, size));
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 		return cellStyle;
 	}
 
-	public static CellStyle getBorderedBoldCurrencyCellStyle(Sheet sheet) {
+	public static CellStyle getBorderedBoldCurrencyCellStyle(Sheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
 		cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -90,13 +90,13 @@ public class StyleUtils {
 		cellStyle.setAlignment(HorizontalAlignment.RIGHT);
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setWrapText(true);
-		cellStyle.setFont(getBoldFont(sheet));
+		cellStyle.setFont(getBoldFont(sheet,size));
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 		return cellStyle;
 	}
 
-	public static CellStyle getBorderedBoldCellStyleWithBackgroundColor(Sheet sheet, short bg) {
+	public static CellStyle getBorderedBoldCellStyleWithBackgroundColor(Sheet sheet, short bg, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
 		cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -104,20 +104,20 @@ public class StyleUtils {
 		cellStyle.setBorderRight(BorderStyle.THIN);
 		cellStyle.setFillForegroundColor(bg);
 		cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		cellStyle.setFont(getBoldFont(sheet));
+		cellStyle.setFont(getBoldFont(sheet,size));
 		return cellStyle;
 	}
 
-	public static CellStyle getHeaderRowStyle(Sheet sheet) {
+	public static CellStyle getHeaderRowStyle(Sheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
-		cellStyle.setBorderBottom(BorderStyle.DOUBLE);
+		cellStyle.setBorderBottom(BorderStyle.THIN);
 		cellStyle.setBorderLeft(BorderStyle.THIN);
 		cellStyle.setBorderRight(BorderStyle.THIN);
 		cellStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
 		cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 //        cellStyle.setFillBackgroundColor(IndexedColors.YELLOW.getIndex());
-		cellStyle.setFont(getHeaderFont(sheet));
+		cellStyle.setFont(getHeaderFont(sheet,size));
 		cellStyle.setWrapText(true);
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setAlignment(HorizontalAlignment.CENTER);

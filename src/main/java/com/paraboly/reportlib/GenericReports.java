@@ -32,6 +32,9 @@ public class GenericReports {
 		private List<?> elementList;
 		private LinkedHashMap<String, ColumnMetadata> columnToMetadataMapping;
 		private String reportType;
+		private int fontSize=14;
+		private int headerFontSize=14;
+		private int titleFontSize=16;
 		private Integer year;
 		private Integer headerStartOffsetX;
 		private Integer headerEndOffsetX;
@@ -116,10 +119,10 @@ public class GenericReports {
 			chartProps.setValueLabel(chartProps.getValueKey());
 			return chartProps;
 		}
-		private static CellStyle getCellStyle(Sheet sheet, String type, String alignmnet){
-			CellStyle dataStyle = getBorderedBoldCellStyle(sheet);
-			CellStyle headerStyle = getHeaderRowStyle(sheet);
-			CellStyle currStyle = getBorderedBoldCurrencyCellStyle(sheet);
+		private static CellStyle getCellStyle(Sheet sheet, String type, String alignmnet, int size){
+			CellStyle dataStyle = getBorderedBoldCellStyle(sheet, size);
+			CellStyle headerStyle = getHeaderRowStyle(sheet, size);
+			CellStyle currStyle = getBorderedBoldCurrencyCellStyle(sheet,size);
 			if(type.equals("year")){
 				CellStyle yearStyle = sheet.getWorkbook().createCellStyle();
 				yearStyle.cloneStyleFrom(dataStyle);
@@ -179,24 +182,24 @@ public class GenericReports {
 
 		private static TableMapperExtended getReportTable(ReportData reportData, XSSFSheet sheet) {
 			LinkedHashMap<String, ColumnDefinition> map = new LinkedHashMap<>();
-			CellStyle headerStyle = getHeaderRowStyle(sheet);
+			CellStyle headerStyle = getHeaderRowStyle(sheet, reportData.headerFontSize);
 			reportData.getColumnToMetadataMapping().forEach((columnName, columnMetadata) -> {
 				CellStyle fieldStyle = null;
 				switch (columnMetadata.getCellContent()) {
 					case "money":
-						fieldStyle = getCellStyle(sheet, "money", columnMetadata.getAlignment());
+						fieldStyle = getCellStyle(sheet, "money", columnMetadata.getAlignment(),reportData.fontSize);
 						break;
 					case "percentage":
-						fieldStyle = getCellStyle(sheet, "percentage", columnMetadata.getAlignment());
+						fieldStyle = getCellStyle(sheet, "percentage", columnMetadata.getAlignment(),reportData.fontSize);
 						break;
 					case "count":
-						fieldStyle = getCellStyle(sheet, "count", columnMetadata.getAlignment());
+						fieldStyle = getCellStyle(sheet, "count", columnMetadata.getAlignment(),reportData.fontSize);
 						break;
 					case "year":
-						fieldStyle = getCellStyle(sheet, "year", columnMetadata.getAlignment());
+						fieldStyle = getCellStyle(sheet, "year", columnMetadata.getAlignment(),reportData.fontSize);
 						break;
 					case "text":
-						fieldStyle = getCellStyle(sheet, "text", columnMetadata.getAlignment());
+						fieldStyle = getCellStyle(sheet, "text", columnMetadata.getAlignment(),reportData.fontSize);
 						break;
 				}
 				map.put(columnName,
@@ -461,7 +464,7 @@ public class GenericReports {
 					title=header;
 				}
 				Cell headerRowCell = headerRow.createCell(startOffsetX);
-				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet));
+				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
 				headerRowCell.setCellValue(title);
 
 				offsetXCounter = startOffsetX;
@@ -472,7 +475,7 @@ public class GenericReports {
 					headerRow = sheet.createRow(startOffsetY);
 				}
 				Cell headerRowCell = headerRow.createCell(startOffsetX);
-				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet));
+				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
 				headerRowCell.setCellValue(header);
 
 				offsetXCounter = startOffsetX;
@@ -510,11 +513,11 @@ public class GenericReports {
 			RegionUtil.setBorderRight(BorderStyle.MEDIUM, region, sheet);
 			Cell titleCell = totalRow.createCell(startOffsetX);
 			titleCell.setCellValue(reportData.getTotalSumTitle());
-			titleCell.setCellStyle(getHeaderRowStyle(sheet));
+			titleCell.setCellStyle(getHeaderRowStyle(sheet, reportData.headerFontSize));
 
 			Cell sumCell = totalRow.createCell(startOffsetX + 2);
 			sumCell.setCellValue(summedValue);
-			sumCell.setCellStyle(getHeaderRowStyle(sheet));
+			sumCell.setCellStyle(getHeaderRowStyle(sheet, reportData.headerFontSize));
 		}
 
 		public void addChart(Sheet sheet, List data, ChartProps chartProps, int chartOrder) {
