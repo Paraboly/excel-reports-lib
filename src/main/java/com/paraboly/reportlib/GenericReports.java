@@ -204,7 +204,7 @@ public class GenericReports {
 				}
 				map.put(columnName,
 						new ColumnDefinition<String>(
-								columnMetadata.getColumnSize(), columnName.toUpperCase(), fieldStyle, headerStyle,
+								columnMetadata.getColumnSize(), columnName, fieldStyle, headerStyle,
 								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), reportData.getDisableBottomRow(), reportData));
 			});
 
@@ -305,7 +305,7 @@ public class GenericReports {
 				cell.setCellStyle(headerStyle);
 			offsetYCounter += 1;
 
-			for (int i = 0; i <= data.size(); i++) {
+			for (int i = 0; i < data.size(); i++) {
 				Row dataRow = sheet.getRow(i + offsetYCounter);
 				if(dataRow == null) {
 					dataRow = sheet.createRow(i + offsetYCounter);
