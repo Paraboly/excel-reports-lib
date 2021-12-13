@@ -9,6 +9,7 @@ import org.apache.poi.xssf.usermodel.*;
 import org.jfree.chart.labels.PieSectionLabelGenerator;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot3D;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STHorizontalAlignment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +49,7 @@ public class GenericReports {
 		private String totalSumTitle;
 		private Boolean disableBottomRow = false;
 		private String rowColorFunction;
+		private Integer yearCount;
 	}
 
 	@Data
@@ -205,7 +207,7 @@ public class GenericReports {
 				map.put(columnName,
 						new ColumnDefinition<String>(
 								columnMetadata.getColumnSize(), columnName, fieldStyle, headerStyle,
-								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), reportData.getDisableBottomRow(), reportData));
+								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), reportData.getDisableBottomRow(), reportData, columnMetadata.getAlignment()));
 			});
 
 			for (Object data: reportData.getElementList()) {
@@ -244,8 +246,9 @@ public class GenericReports {
 		private String bottomValue;
 		private Boolean disableBottomRow;
 		private ReportData reportData;
+		private String alignment;
 
-		public ColumnDefinition(int columnSize, String column, CellStyle columnStyle, CellStyle headerStyle, String bottomCalculation,String bottomCalculationText, String bottomValue, Boolean disableBottomRow, ReportData reportData) {
+		public ColumnDefinition(int columnSize, String column, CellStyle columnStyle, CellStyle headerStyle, String bottomCalculation,String bottomCalculationText, String bottomValue, Boolean disableBottomRow, ReportData reportData, String alignment) {
 			this.columnSize = columnSize;
 			this.column = column;
 			this.columnStyle = columnStyle;
@@ -255,6 +258,7 @@ public class GenericReports {
 			this.bottomValue = bottomValue;
 			this.disableBottomRow = disableBottomRow;
 			this.reportData = reportData;
+			this.alignment = alignment;
 			data = new ArrayList<T>();
 		}
 
@@ -282,6 +286,9 @@ public class GenericReports {
 			}else if (this.reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
 				sheet.setDefaultRowHeight((short) 8.0);
 				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
+			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
+				sheet.setDefaultRowHeight((short) 8.0);
+				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
 			}
 			this.startOffsetX = startOffsetX;
 			this.startOffsetY = startOffsetY;
@@ -305,7 +312,7 @@ public class GenericReports {
 				cell.setCellStyle(headerStyle);
 			offsetYCounter += 1;
 
-			for (int i = 0; i < data.size(); i++) {
+			for (int i = 0; i <= data.size(); i++) {
 				Row dataRow = sheet.getRow(i + offsetYCounter);
 				if(dataRow == null) {
 					dataRow = sheet.createRow(i + offsetYCounter);
@@ -323,7 +330,7 @@ public class GenericReports {
 				if (data.size() == i) {
 					if (!disableBottomRow){
 						CellStyle bottomStyle = sheet.getWorkbook().createCellStyle();
-						bottomStyle.cloneStyleFrom(headerStyle);
+						bottomStyle.cloneStyleFrom(columnStyle);
 						bottomStyle.setDataFormat(columnStyle.getDataFormat());
 						dataCell.setCellStyle(bottomStyle);
 					}
@@ -381,9 +388,12 @@ public class GenericReports {
 							dataCell.setCellValue(bottomCalculationText+"\n"+ sum / data.size());
 						else if (bottomCalculation != null && bottomCalculation.equals("count"))
 							dataCell.setCellValue(bottomCalculationText+"\n"+data.size());
-						else if (bottomCalculation != null && bottomCalculation.equals("sum"))
+						else if (bottomCalculation != null && bottomCalculation.equals("sum") && !bottomCalculation.equals("sumPercentage") && !bottomCalculation.equals("sumCount"))
 							dataCell.setCellValue(bottomCalculationText+"\n"+turkishLirasFormat.format(sum).replaceAll("[^0123456789.,]",""));
-
+						else if (bottomCalculation != null && bottomCalculation.equals("sumPercentage"))
+							dataCell.setCellValue(sum);
+						else if (bottomCalculation != null && bottomCalculation.equals("sumCount"))
+							dataCell.setCellValue(sum);
 						if (bottomCalculation != null && !bottomCalculation.equals("string:") && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
 							dataCell.setCellValue(bottomCalculation.split(":")[1]);
 						}
@@ -443,7 +453,9 @@ public class GenericReports {
 		}
 
 		public void write(Sheet sheet, ReportData reportData) {
-			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
+			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
+					|| reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")
+					|| reportData.reportType.substring(0,1).equals(" ")){
 				CellRangeAddress region = new CellRangeAddress(reportData.headerStartOffsetY, reportData.headerEndOffsetY, reportData.headerStartOffsetX, reportData.headerEndOffsetX);
 				sheet.addMergedRegion(region);
 				RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
@@ -460,16 +472,82 @@ public class GenericReports {
 						+ header + "\n"
 						+ (reportData.biddingType.equals("Veri Girilmemiştir") ? "": reportData.biddingType.toUpperCase(Locale.ROOT)+", ")
 						+ (reportData.biddingProcedure.equals("Veri Girilmemiştir") ? "": reportData.biddingProcedure.toUpperCase(Locale.ROOT));
-				}else{
+				}else if(reportData.reportType.equals(" BÖLGEYE GÖRE DAĞILIM")
+							|| reportData.reportType.equals(" İHALE TÜRÜNE GÖRE DAĞILIM")
+							|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIM (YAPIM ve Y-BAKIM İHALELERİ)")
+				){
+					title = reportData.year.toString()+ " YILI ÖN MALİ KONTROLÜ YAPILAN İHALELER\n"+
+								reportData.reportType;
+				}else if(reportData.reportType.equals(" GENEL MÜDÜRLÜK İHALELERİ")
+							|| reportData.reportType.equals(" BÖLGE MÜDÜRLÜK İHALELERİ")
+							|| reportData.reportType.equals(" GENEL MD.&BÖLGE MD. İHALELERİ")
+							|| reportData.reportType.equals(" MAL ALIM İŞİ İHALELERİ")
+							|| reportData.reportType.equals(" YAPIM(BAKIM) İŞİ İHALELERİ")
+							|| reportData.reportType.equals(" YAPIM İŞİ İHALELERİ")
+							|| reportData.reportType.equals(" DANIŞMANLIK İŞİ İHALELERİ")
+							|| reportData.reportType.equals(" HİZMET İŞİ İHALELERİ")
+				){
+					title = reportData.year.toString()+ " YILI ÖN MALİ KONTROL\n"+
+							reportData.reportType;
+				}
+				else if(reportData.reportType.equals(" YAPIM İHALE USULE GÖRE DAĞILIMI")
+						|| reportData.reportType.equals(" YAPIM İHALE USULE GÖRE TUTAR DAĞILIMI")
+				){
+					title = reportData.year.toString() + " YILI" + reportData.reportType+
+							"\n *İhale Bedeli / 1.000.000 TL";
+				}else if(reportData.reportType.equals(" YAPIM İHALE USULE GÖRE TENZİLAT DAĞILIMI")){
+					title = reportData.year.toString() + " YILI" + reportData.reportType;
+				}
+				else if(reportData.reportType.equals(" TENZİLAT TABLO")){
+					title = reportData.year.toString()+" YILI" + reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
+				}
+				else if(reportData.reportType.equals(" TENZİLAT TABLO ( SON 2 YIL )")){
+					Integer previousYear = reportData.year-1;
+					title = (previousYear)+"-"+(reportData.year)+" YILI" + reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
+				}
+				else{
 					title=header;
 				}
+
 				Cell headerRowCell = headerRow.createCell(startOffsetX);
 				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
 				headerRowCell.setCellValue(title);
 
 				offsetXCounter = startOffsetX;
 				startOffsetY = reportData.headerEndOffsetY;
-			}else{
+
+				if(reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ KONTROL İŞLEMLERİ")){
+					CellRangeAddress regionForCount = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.headerStartOffsetX+1, reportData.yearCount);
+					sheet.addMergedRegion(regionForCount);
+					RegionUtil.setBorderBottom(BorderStyle.THIN, regionForCount, sheet);
+					RegionUtil.setBorderTop(BorderStyle.THIN, regionForCount, sheet);
+					RegionUtil.setBorderLeft(BorderStyle.THIN, regionForCount, sheet);
+					RegionUtil.setBorderRight(BorderStyle.THIN, regionForCount, sheet);
+					Row subTitleRow = sheet.getRow(startOffsetY+1);
+					if(subTitleRow == null) {
+						subTitleRow = sheet.createRow(startOffsetY+1);
+					}
+					Cell subTitleRowCell1 = subTitleRow.createCell(startOffsetX+1);
+					subTitleRowCell1.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
+					subTitleRowCell1.setCellValue("DOSYA SAYISI");
+
+					CellRangeAddress regionForCost = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.yearCount+1, reportData.yearCount*2);
+					sheet.addMergedRegion(regionForCost);
+					RegionUtil.setBorderBottom(BorderStyle.THIN, regionForCost, sheet);
+					RegionUtil.setBorderTop(BorderStyle.THIN, regionForCost, sheet);
+					RegionUtil.setBorderLeft(BorderStyle.THIN, regionForCost, sheet);
+					RegionUtil.setBorderRight(BorderStyle.THIN, regionForCost, sheet);
+					Row subTitleRowCost = sheet.getRow(startOffsetY+1);
+					if(subTitleRowCost == null) {
+						subTitleRowCost = sheet.createRow(startOffsetY+1);
+					}
+					Cell subTitleRowCell2 = subTitleRowCost.createCell(startOffsetX+ reportData.yearCount+1);
+					subTitleRowCell2.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
+					subTitleRowCell2.setCellValue("İHALE BEDELİ (x1.000.000 TL)");
+					startOffsetY+=1;
+				}
+			}
+			else{
 				Row headerRow = sheet.getRow(startOffsetY);
 				if(headerRow == null) {
 					headerRow = sheet.createRow(startOffsetY);
