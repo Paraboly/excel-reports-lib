@@ -137,7 +137,7 @@ public class GenericReports {
 				return yearStyle;
 			}else if(type.equals("money")){
 				CellStyle currencyStyle = sheet.getWorkbook().createCellStyle();
-				currencyStyle.cloneStyleFrom(currStyle);
+				currencyStyle.cloneStyleFrom(dataStyle);
 				if (alignmnet.equals("RIGHT")){
 					currencyStyle.setAlignment(HorizontalAlignment.RIGHT);
 				}else if(alignmnet.equals("LEFT")){
@@ -287,7 +287,7 @@ public class GenericReports {
 				sheet.setDefaultRowHeight((short) 8.0);
 				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
 			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
-				sheet.setDefaultRowHeight((short) 8.0);
+				sheet.setDefaultRowHeight((short) 6.0);
 				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
 			}
 			this.startOffsetX = startOffsetX;
@@ -384,12 +384,15 @@ public class GenericReports {
 							dataCell.setCellValue("");
 						else if (bottomCalculation != null && bottomCalculationText.equals("Tenzilat:"))
 							dataCell.setCellValue(bottomCalculationText+"\n"+ "%"+bottomValue);
+						else if (bottomCalculation != null && bottomCalculationText.equals("TenzilatForGeneral:"))
+							dataCell.setCellValue("% "+bottomValue);
 						else if (bottomCalculation != null && bottomCalculation.equals("avg"))
 							dataCell.setCellValue(bottomCalculationText+"\n"+ sum / data.size());
 						else if (bottomCalculation != null && bottomCalculation.equals("count"))
 							dataCell.setCellValue(bottomCalculationText+"\n"+data.size());
 						else if (bottomCalculation != null && bottomCalculation.equals("sum") && !bottomCalculation.equals("sumPercentage") && !bottomCalculation.equals("sumCount"))
-							dataCell.setCellValue(bottomCalculationText+"\n"+turkishLirasFormat.format(sum).replaceAll("[^0123456789.,]",""));
+							dataCell.setCellValue(!bottomCalculationText.equals("") ? bottomCalculationText+"\n"+turkishLirasFormat.format(sum).replaceAll("[^0123456789.,]","")
+												: turkishLirasFormat.format(sum).replaceAll("[^0123456789.,]",""));
 						else if (bottomCalculation != null && bottomCalculation.equals("sumPercentage"))
 							dataCell.setCellValue(sum);
 						else if (bottomCalculation != null && bottomCalculation.equals("sumCount"))
@@ -517,7 +520,7 @@ public class GenericReports {
 				startOffsetY = reportData.headerEndOffsetY;
 
 				if(reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ KONTROL İŞLEMLERİ")){
-					CellRangeAddress regionForCount = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.headerStartOffsetX+1, reportData.yearCount);
+					CellRangeAddress regionForCount = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.headerStartOffsetX+2, reportData.yearCount);
 					sheet.addMergedRegion(regionForCount);
 					RegionUtil.setBorderBottom(BorderStyle.THIN, regionForCount, sheet);
 					RegionUtil.setBorderTop(BorderStyle.THIN, regionForCount, sheet);
@@ -527,11 +530,11 @@ public class GenericReports {
 					if(subTitleRow == null) {
 						subTitleRow = sheet.createRow(startOffsetY+1);
 					}
-					Cell subTitleRowCell1 = subTitleRow.createCell(startOffsetX+1);
+					Cell subTitleRowCell1 = subTitleRow.createCell(startOffsetX+2);
 					subTitleRowCell1.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
 					subTitleRowCell1.setCellValue("DOSYA SAYISI");
 
-					CellRangeAddress regionForCost = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.yearCount+1, reportData.yearCount*2);
+					CellRangeAddress regionForCost = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.yearCount+2, reportData.yearCount*2+1);
 					sheet.addMergedRegion(regionForCost);
 					RegionUtil.setBorderBottom(BorderStyle.THIN, regionForCost, sheet);
 					RegionUtil.setBorderTop(BorderStyle.THIN, regionForCost, sheet);
@@ -541,7 +544,7 @@ public class GenericReports {
 					if(subTitleRowCost == null) {
 						subTitleRowCost = sheet.createRow(startOffsetY+1);
 					}
-					Cell subTitleRowCell2 = subTitleRowCost.createCell(startOffsetX+ reportData.yearCount+1);
+					Cell subTitleRowCell2 = subTitleRowCost.createCell(startOffsetX+ reportData.yearCount+2);
 					subTitleRowCell2.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
 					subTitleRowCell2.setCellValue("İHALE BEDELİ (x1.000.000 TL)");
 					startOffsetY+=1;
