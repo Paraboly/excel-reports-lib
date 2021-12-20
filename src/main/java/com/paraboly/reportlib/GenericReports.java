@@ -41,6 +41,7 @@ public class GenericReports {
 		private Integer headerEndOffsetX;
 		private Integer headerStartOffsetY;
 		private Integer headerEndOffsetY;
+		private String biddingDepartment;
 		private String biddingType;
 		private String biddingProcedure;
 		private LinkedList<ChartProps> chartPropsLinkedList;
@@ -284,8 +285,7 @@ public class GenericReports {
 				sheet.setDefaultRowHeight((short) 17.0);
 				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
 			}else if (this.reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
-				sheet.setDefaultRowHeight((short) 8.0);
-				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
+				sheet.setDefaultRowHeight((short) -1);
 			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
 				sheet.setDefaultRowHeight((short) 6.0);
 				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
@@ -404,24 +404,31 @@ public class GenericReports {
 				}
 				else if(data.get(i) instanceof Float) {
 					dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));
+					dataRow.setHeight((short) -1);
 				}
 				else if(data.get(i) instanceof Integer) {
 					dataCell.setCellValue(Integer.parseInt(data.get(i).toString()));
+					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof BigDecimal) {
 					dataCell.setCellValue(((BigDecimal) data.get(i)).doubleValue());
+					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof String) {
 					dataCell.setCellValue(data.get(i).toString());
+					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof Long) {
 					dataCell.setCellValue((Long) data.get(i));
+					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof Double) {
 					dataCell.setCellValue((Double) data.get(i));
+					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) != null) {
 					dataCell.setCellValue(data.get(i).toString());
+					dataRow.setHeight((short) -1);
 				}
 			}
 			offsetYCounter += data.size();
@@ -473,6 +480,7 @@ public class GenericReports {
 				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 					title = reportData.year.toString()+" YILI" + "\n"
 						+ header + "\n"
+							+ (reportData.biddingDepartment.equals("Veri Girilmemiştir")? "": reportData.biddingDepartment.toUpperCase(Locale.ROOT)+", ")
 						+ (reportData.biddingType.equals("Veri Girilmemiştir") ? "": reportData.biddingType.toUpperCase(Locale.ROOT)+", ")
 						+ (reportData.biddingProcedure.equals("Veri Girilmemiştir") ? "": reportData.biddingProcedure.toUpperCase(Locale.ROOT));
 				}else if(reportData.reportType.equals(" BÖLGEYE GÖRE DAĞILIM")
