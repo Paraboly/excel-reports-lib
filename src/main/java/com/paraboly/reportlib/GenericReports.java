@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.Format;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -126,16 +124,16 @@ public class GenericReports {
 			chartProps.setValueLabel(chartProps.getValueKey());
 			return chartProps;
 		}
-		private static CellStyle getCellStyle(Sheet sheet, String type, String alignmnet, int size){
+		private static CellStyle getCellStyle(Sheet sheet, String type, ColumnMetadata columnMetadata, int size){
 			CellStyle dataStyle = getBorderedBoldCellStyle(sheet, size);
 			CellStyle headerStyle = getHeaderRowStyle(sheet, size);
 			CellStyle currStyle = getBorderedBoldCurrencyCellStyle(sheet,size);
 			if(type.equals("year")){
 				CellStyle yearStyle = sheet.getWorkbook().createCellStyle();
 				yearStyle.cloneStyleFrom(dataStyle);
-				if (alignmnet.equals("RIGHT")){
+				if (columnMetadata.getAlignment().equals("RIGHT")){
 					yearStyle.setAlignment(HorizontalAlignment.RIGHT);
-				}else if(alignmnet.equals("LEFT")){
+				}else if(columnMetadata.getAlignment().equals("LEFT")){
 					yearStyle.setAlignment(HorizontalAlignment.LEFT);
 				}
 				setYear(sheet, yearStyle);
@@ -143,9 +141,9 @@ public class GenericReports {
 			}else if(type.equals("money")){
 				CellStyle currencyStyle = sheet.getWorkbook().createCellStyle();
 				currencyStyle.cloneStyleFrom(dataStyle);
-				if (alignmnet.equals("RIGHT")){
+				if (columnMetadata.getAlignment().equals("RIGHT")){
 					currencyStyle.setAlignment(HorizontalAlignment.RIGHT);
-				}else if(alignmnet.equals("LEFT")){
+				}else if(columnMetadata.getAlignment().equals("LEFT")){
 					currencyStyle.setAlignment(HorizontalAlignment.LEFT);
 				}
 				setCurrency(sheet, currencyStyle);
@@ -153,19 +151,19 @@ public class GenericReports {
 			}else if(type.equals("percentage")){
 				CellStyle percentageStyle = sheet.getWorkbook().createCellStyle();
 				percentageStyle.cloneStyleFrom(dataStyle);
-				if (alignmnet.equals("RIGHT")){
+				if (columnMetadata.getAlignment().equals("RIGHT")){
 					percentageStyle.setAlignment(HorizontalAlignment.RIGHT);
-				}else if(alignmnet.equals("LEFT")){
+				}else if(columnMetadata.getAlignment().equals("LEFT")){
 					percentageStyle.setAlignment(HorizontalAlignment.LEFT);
 				}
-				setPercentage(sheet, percentageStyle);
+				setPercentage(sheet, percentageStyle, columnMetadata );
 				return percentageStyle;
 			}else if(type.equals("count")){
 				CellStyle countStyle = sheet.getWorkbook().createCellStyle();
 				countStyle.cloneStyleFrom(dataStyle);
-				if (alignmnet.equals("RIGHT")){
+				if (columnMetadata.getAlignment().equals("RIGHT")){
 					countStyle.setAlignment(HorizontalAlignment.RIGHT);
-				}else if(alignmnet.equals("LEFT")){
+				}else if(columnMetadata.getAlignment().equals("LEFT")){
 					countStyle.setAlignment(HorizontalAlignment.LEFT);
 				}
 				setCount(sheet, countStyle);
@@ -173,9 +171,9 @@ public class GenericReports {
 			}else if(type.equals("text")){
 				CellStyle textStyle = sheet.getWorkbook().createCellStyle();
 				textStyle.cloneStyleFrom(dataStyle);
-				if (alignmnet.equals("RIGHT")){
+				if (columnMetadata.getAlignment().equals("RIGHT")){
 					textStyle.setAlignment(HorizontalAlignment.RIGHT);
-				}else if(alignmnet.equals("LEFT")){
+				}else if(columnMetadata.getAlignment().equals("LEFT")){
 					textStyle.setAlignment(HorizontalAlignment.LEFT);
 				}
 				setText(sheet, textStyle);
@@ -194,19 +192,19 @@ public class GenericReports {
 				CellStyle fieldStyle = null;
 				switch (columnMetadata.getCellContent()) {
 					case "money":
-						fieldStyle = getCellStyle(sheet, "money", columnMetadata.getAlignment(),reportData.fontSize);
+						fieldStyle = getCellStyle(sheet, "money", columnMetadata,reportData.fontSize);
 						break;
 					case "percentage":
-						fieldStyle = getCellStyle(sheet, "percentage", columnMetadata.getAlignment(),reportData.fontSize);
+						fieldStyle = getCellStyle(sheet, "percentage", columnMetadata,reportData.fontSize);
 						break;
 					case "count":
-						fieldStyle = getCellStyle(sheet, "count", columnMetadata.getAlignment(),reportData.fontSize);
+						fieldStyle = getCellStyle(sheet, "count", columnMetadata,reportData.fontSize);
 						break;
 					case "year":
-						fieldStyle = getCellStyle(sheet, "year", columnMetadata.getAlignment(),reportData.fontSize);
+						fieldStyle = getCellStyle(sheet, "year", columnMetadata,reportData.fontSize);
 						break;
 					case "text":
-						fieldStyle = getCellStyle(sheet, "text", columnMetadata.getAlignment(),reportData.fontSize);
+						fieldStyle = getCellStyle(sheet, "text", columnMetadata,reportData.fontSize);
 						break;
 				}
 				map.put(columnName,

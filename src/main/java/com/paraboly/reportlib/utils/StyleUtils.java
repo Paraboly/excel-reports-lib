@@ -1,10 +1,8 @@
 package com.paraboly.reportlib.utils;
 
+import com.paraboly.reportlib.GenericReports;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-
-import java.text.NumberFormat;
-import java.util.Locale;
 
 /**
  * Need to add builder
@@ -137,8 +135,13 @@ public class StyleUtils {
 		cellStyle.setDataFormat(format.getFormat(""));
 	}
 
-	public static void setPercentage(Sheet sheet, CellStyle cellStyle) {
+	public static void setPercentage(Sheet sheet, CellStyle cellStyle, GenericReports.ColumnMetadata columnMetadata) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
-		cellStyle.setDataFormat(format.getFormat(BuiltinFormats.getBuiltinFormat(9)));
+		if(columnMetadata.getDecimalPoint()==0){
+			cellStyle.setDataFormat(format.getFormat(BuiltinFormats.getBuiltinFormat(9)));
+		}else{
+			cellStyle.setDataFormat(format.getFormat(BuiltinFormats.getBuiltinFormat(10)));
+		}
+
 	}
 }
