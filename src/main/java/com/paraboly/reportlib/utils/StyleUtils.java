@@ -61,8 +61,6 @@ public class StyleUtils {
 		cellStyle.setAlignment(HorizontalAlignment.CENTER);
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setWrapText(true);
-		DataFormat format = sheet.getWorkbook().createDataFormat();
-		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 		return cellStyle;
 	}
 
@@ -76,8 +74,6 @@ public class StyleUtils {
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setWrapText(true);
 		cellStyle.setFont(getBoldFont(sheet, size));
-		DataFormat format = sheet.getWorkbook().createDataFormat();
-		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 		return cellStyle;
 	}
 
@@ -91,8 +87,6 @@ public class StyleUtils {
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setWrapText(true);
 		cellStyle.setFont(getBoldFont(sheet,size));
-		DataFormat format = sheet.getWorkbook().createDataFormat();
-		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 		return cellStyle;
 	}
 
@@ -116,13 +110,10 @@ public class StyleUtils {
 		cellStyle.setBorderRight(BorderStyle.THIN);
 		cellStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
 		cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//        cellStyle.setFillBackgroundColor(IndexedColors.YELLOW.getIndex());
 		cellStyle.setFont(getHeaderFont(sheet,size));
 		cellStyle.setWrapText(true);
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setAlignment(HorizontalAlignment.CENTER);
-		DataFormat format = sheet.getWorkbook().createDataFormat();
-		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 		return cellStyle;
 	}
 
@@ -148,6 +139,6 @@ public class StyleUtils {
 
 	public static void setPercentage(Sheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
-		cellStyle.setDataFormat(format.getFormat(BuiltinFormats.getBuiltinFormat(10)));
+		cellStyle.setDataFormat(format.getFormat(BuiltinFormats.getBuiltinFormat(9)));
 	}
 }

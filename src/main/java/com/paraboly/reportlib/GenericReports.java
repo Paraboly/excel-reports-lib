@@ -33,9 +33,9 @@ public class GenericReports {
 		private List<?> elementList;
 		private LinkedHashMap<String, ColumnMetadata> columnToMetadataMapping;
 		private String reportType;
-		private int fontSize=14;
-		private int headerFontSize=14;
-		private int titleFontSize=16;
+		private int fontSize=12;
+		private int headerFontSize=12;
+		private int titleFontSize=14;
 		private Integer year;
 		private Integer headerStartOffsetX;
 		private Integer headerEndOffsetX;
@@ -51,6 +51,7 @@ public class GenericReports {
 		private Boolean disableBottomRow = false;
 		private String rowColorFunction;
 		private Integer yearCount;
+		private Boolean mergeTwoRow = false;
 	}
 
 	@Data
@@ -63,6 +64,9 @@ public class GenericReports {
 		private String bottomValue;
 		private String cellContent = "text"; // potential values are money, percentage, count, year
 		private String alignment = "CENTER";
+		private Boolean isDiscount=false;
+		private Integer decimalPoint=999;
+		private Boolean isMerged = false;
 	}
 
 	@Data
@@ -208,7 +212,7 @@ public class GenericReports {
 				map.put(columnName,
 						new ColumnDefinition<String>(
 								columnMetadata.getColumnSize(), columnName, fieldStyle, headerStyle,
-								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), reportData.getDisableBottomRow(), reportData, columnMetadata.getAlignment()));
+								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), reportData.getDisableBottomRow(), reportData, columnMetadata.getAlignment(), columnMetadata.getIsDiscount(), columnMetadata.getDecimalPoint(), columnMetadata.getIsMerged()));
 			});
 
 			for (Object data: reportData.getElementList()) {
@@ -248,8 +252,24 @@ public class GenericReports {
 		private Boolean disableBottomRow;
 		private ReportData reportData;
 		private String alignment;
+		private Boolean isDiscount;
+		private Integer decimalPoint;
+		private Boolean isMerged;
 
-		public ColumnDefinition(int columnSize, String column, CellStyle columnStyle, CellStyle headerStyle, String bottomCalculation,String bottomCalculationText, String bottomValue, Boolean disableBottomRow, ReportData reportData, String alignment) {
+		public ColumnDefinition(int columnSize,
+								String column,
+								CellStyle columnStyle,
+								CellStyle headerStyle,
+								String bottomCalculation,
+								String bottomCalculationText,
+								String bottomValue,
+								Boolean disableBottomRow,
+								ReportData reportData,
+								String alignment,
+								Boolean isDiscount,
+								Integer decimalPoint,
+								Boolean isMerged
+		) {
 			this.columnSize = columnSize;
 			this.column = column;
 			this.columnStyle = columnStyle;
@@ -260,6 +280,9 @@ public class GenericReports {
 			this.disableBottomRow = disableBottomRow;
 			this.reportData = reportData;
 			this.alignment = alignment;
+			this.isDiscount = isDiscount;
+			this.decimalPoint = decimalPoint;
+			this.isMerged = isMerged;
 			data = new ArrayList<T>();
 		}
 
@@ -298,19 +321,34 @@ public class GenericReports {
 			if(columnHeaderRow == null) {
 				columnHeaderRow = sheet.createRow(offsetYCounter);
 			}
-			if(columnSize > 1) {
-				CellRangeAddress region = new CellRangeAddress(offsetYCounter, offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
+			if(columnSize >= 1 && reportData.mergeTwoRow==true) {
+				CellRangeAddress region = new CellRangeAddress(offsetYCounter, offsetYCounter+1, startOffsetX, startOffsetX + columnSize - 1);
 				sheet.addMergedRegion(region);
 				RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
 				RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
 				RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
 				RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
+				offsetYCounter += 2;
+			}else if(columnSize==1 && reportData.mergeTwoRow==false){
+				offsetYCounter += 1;
 			}
-			Cell cell = columnHeaderRow.createCell(startOffsetX);
-			cell.setCellValue(column);
-			if(headerStyle != null)
-				cell.setCellStyle(headerStyle);
-			offsetYCounter += 1;
+			else if(columnSize>1 && reportData.mergeTwoRow==false){
+				if(!isMerged){
+					CellRangeAddress region = new CellRangeAddress(offsetYCounter, offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
+					sheet.addMergedRegion(region);
+					RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
+					RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
+					RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
+					RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
+				}
+				offsetYCounter += 1;
+			}
+			if(!(isMerged && column.equals("İHALE TÜRÜ"))) {
+				Cell cell = columnHeaderRow.createCell(startOffsetX);
+				cell.setCellValue(column);
+				if (headerStyle != null)
+					cell.setCellStyle(headerStyle);
+			}
 
 			for (int i = 0; i <= data.size(); i++) {
 				Row dataRow = sheet.getRow(i + offsetYCounter);
@@ -403,7 +441,16 @@ public class GenericReports {
 					}
 				}
 				else if(data.get(i) instanceof Float) {
-					dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));
+					if(isDiscount != null && isDiscount==true && decimalPoint!= null && decimalPoint==0){
+						Float d = Float.parseFloat(data.get(i).toString())*100;
+						dataCell.setCellValue(Math.round(d)/100f);
+					}else if(isDiscount != null && isDiscount==true && decimalPoint!=null && decimalPoint==1){
+						String convert = String.format("%.1f", Double.valueOf(data.get(i).toString()));
+						dataCell.setCellValue(Float.parseFloat(convert));
+					}
+					else{
+						dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));
+					}
 					dataRow.setHeight((short) -1);
 				}
 				else if(data.get(i) instanceof Integer) {
@@ -484,6 +531,7 @@ public class GenericReports {
 						+ (reportData.biddingType.equals("Veri Girilmemiştir") ? "": reportData.biddingType.toUpperCase(Locale.ROOT)+", ")
 						+ (reportData.biddingProcedure.equals("Veri Girilmemiştir") ? "": reportData.biddingProcedure.toUpperCase(Locale.ROOT));
 				}else if(reportData.reportType.equals(" BÖLGEYE GÖRE DAĞILIM")
+
 							|| reportData.reportType.equals(" İHALE TÜRÜNE GÖRE DAĞILIM")
 							|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIM (YAPIM ve Y-BAKIM İHALELERİ)")
 				){
@@ -504,8 +552,7 @@ public class GenericReports {
 				else if(reportData.reportType.equals(" YAPIM İHALE USULE GÖRE DAĞILIMI")
 						|| reportData.reportType.equals(" YAPIM İHALE USULE GÖRE TUTAR DAĞILIMI")
 				){
-					title = reportData.year.toString() + " YILI" + reportData.reportType+
-							"\n *İhale Bedeli / 1.000.000 TL";
+					title = reportData.year.toString() + " YILI" + reportData.reportType;
 				}else if(reportData.reportType.equals(" YAPIM İHALE USULE GÖRE TENZİLAT DAĞILIMI")){
 					title = reportData.year.toString() + " YILI" + reportData.reportType;
 				}
@@ -527,8 +574,8 @@ public class GenericReports {
 				offsetXCounter = startOffsetX;
 				startOffsetY = reportData.headerEndOffsetY;
 
-				if(reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ KONTROL İŞLEMLERİ")){
-					CellRangeAddress regionForCount = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.headerStartOffsetX+2, reportData.yearCount);
+				if(reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ KONTROL")){
+					CellRangeAddress regionForCount = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.headerStartOffsetX+2, reportData.yearCount+1);
 					sheet.addMergedRegion(regionForCount);
 					RegionUtil.setBorderBottom(BorderStyle.THIN, regionForCount, sheet);
 					RegionUtil.setBorderTop(BorderStyle.THIN, regionForCount, sheet);
@@ -539,8 +586,19 @@ public class GenericReports {
 						subTitleRow = sheet.createRow(startOffsetY+1);
 					}
 					Cell subTitleRowCell1 = subTitleRow.createCell(startOffsetX+2);
-					subTitleRowCell1.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
+					subTitleRowCell1.setCellStyle(getTitleHeaderStyle(sheet, reportData.headerFontSize));
 					subTitleRowCell1.setCellValue("DOSYA SAYISI");
+
+					CellRangeAddress regionType = new CellRangeAddress(startOffsetY+1, startOffsetY+2, reportData.headerStartOffsetX, reportData.headerStartOffsetX+1);
+					sheet.addMergedRegion(regionType);
+					RegionUtil.setBorderBottom(BorderStyle.THIN, regionType, sheet);
+					RegionUtil.setBorderTop(BorderStyle.THIN, regionType, sheet);
+					RegionUtil.setBorderLeft(BorderStyle.THIN, regionType, sheet);
+					RegionUtil.setBorderRight(BorderStyle.THIN, regionType, sheet);
+					Row typeRow = sheet.getRow(startOffsetY+1);
+					Cell typeCell = typeRow.createCell(startOffsetX);
+					typeCell.setCellStyle(getTitleHeaderStyle(sheet, reportData.headerFontSize));
+					typeCell.setCellValue("İHALE TÜRÜ");
 
 					CellRangeAddress regionForCost = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.yearCount+2, reportData.yearCount*2+1);
 					sheet.addMergedRegion(regionForCost);
@@ -553,8 +611,8 @@ public class GenericReports {
 						subTitleRowCost = sheet.createRow(startOffsetY+1);
 					}
 					Cell subTitleRowCell2 = subTitleRowCost.createCell(startOffsetX+ reportData.yearCount+2);
-					subTitleRowCell2.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
-					subTitleRowCell2.setCellValue("İHALE BEDELİ (x1.000.000 TL)");
+					subTitleRowCell2.setCellStyle(getTitleHeaderStyle(sheet, reportData.headerFontSize));
+					subTitleRowCell2.setCellValue("İHALE TUTARI (x1.000.000 TL)");
 					startOffsetY+=1;
 				}
 			}
