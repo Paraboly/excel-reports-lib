@@ -531,13 +531,13 @@ public class GenericReports {
 				}else if(reportData.reportType.equals(" BÖLGEYE GÖRE DAĞILIM")
 
 							|| reportData.reportType.equals(" İHALE TÜRÜNE GÖRE DAĞILIM")
-							|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIM (YAPIM ve Y-BAKIM İHALELERİ)")
+							|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIM \n(YAPIM ve YAPIM(BAKIM) İHALELERİ)")
 				){
 					title = reportData.year.toString()+ " YILI ÖN MALİ KONTROLÜ YAPILAN İHALELER\n"+
 								reportData.reportType;
 				}else if(reportData.reportType.equals(" GENEL MÜDÜRLÜK İHALELERİ")
 							|| reportData.reportType.equals(" BÖLGE MÜDÜRLÜK İHALELERİ")
-							|| reportData.reportType.equals(" GENEL MD.&BÖLGE MD. İHALELERİ")
+							|| reportData.reportType.equals(" GENEL MÜDÜRLÜK & BÖLGE MÜDÜRLÜK İHALELERİ")
 							|| reportData.reportType.equals(" MAL ALIM İŞİ İHALELERİ")
 							|| reportData.reportType.equals(" YAPIM(BAKIM) İŞİ İHALELERİ")
 							|| reportData.reportType.equals(" YAPIM İŞİ İHALELERİ")
@@ -554,12 +554,16 @@ public class GenericReports {
 				}else if(reportData.reportType.equals(" YAPIM İHALE USULE GÖRE TENZİLAT DAĞILIMI")){
 					title = reportData.year.toString() + " YILI" + reportData.reportType;
 				}
-				else if(reportData.reportType.equals(" TENZİLAT TABLO")){
-					title = reportData.year.toString()+" YILI" + reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
+				else if(reportData.reportType.equals(" "+ reportData.year+ " YILI TENZİLAT")){
+					title = reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
 				}
-				else if(reportData.reportType.equals(" TENZİLAT TABLO ( SON 2 YIL )")){
+				else if(reportData.reportType.equals(" TENZİLAT TABLO \n( SON 2 YIL )")){
 					Integer previousYear = reportData.year-1;
 					title = (previousYear)+"-"+(reportData.year)+" YILI" + reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
+				}else if(reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI") ||
+						reportData.reportType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI") ||
+						reportData.reportType.equals(" İHALE USULÜNE GÖRE TENZİLAT DAĞILIMI")){
+					title = reportData.year.toString() + " YILI YAPIM İHALE TUTARININ\n"+reportData.reportType;
 				}
 				else{
 					title=header;
