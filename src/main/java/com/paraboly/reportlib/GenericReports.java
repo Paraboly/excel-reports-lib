@@ -306,6 +306,7 @@ public class GenericReports {
 				sheet.setDefaultRowHeight((short) 17.0);
 				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
 			}else if (this.reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
+				sheet.setDefaultRowHeight((short) 6.0);
 				sheet.setDefaultRowHeight((short) -1);
 			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
 				sheet.setDefaultRowHeight((short) 6.0);
@@ -427,8 +428,8 @@ public class GenericReports {
 						else if (bottomCalculation != null && bottomCalculation.equals("count"))
 							dataCell.setCellValue(bottomCalculationText+"\n"+data.size());
 						else if (bottomCalculation != null && bottomCalculation.equals("sum") && !bottomCalculation.equals("sumPercentage") && !bottomCalculation.equals("sumCount"))
-							dataCell.setCellValue(!bottomCalculationText.equals("") ? bottomCalculationText+"\n"+turkishLirasFormat.format(sum).replaceAll("[^0123456789.,]","")
-												: turkishLirasFormat.format(sum).replaceAll("[^0123456789.,]",""));
+							dataCell.setCellValue(!bottomCalculationText.equals("") ? bottomCalculationText+"\n"+turkishLirasFormat.format(sum)
+												: turkishLirasFormat.format(sum));
 						else if (bottomCalculation != null && bottomCalculation.equals("sumPercentage"))
 							dataCell.setCellValue(sum);
 						else if (bottomCalculation != null && bottomCalculation.equals("sumCount"))
@@ -443,8 +444,7 @@ public class GenericReports {
 						Float d = Float.parseFloat(data.get(i).toString())*100;
 						dataCell.setCellValue(Math.round(d)/100f);
 					}else if(isDiscount != null && isDiscount==true && decimalPoint!=null && decimalPoint==1){
-						String convert = String.format("%.1f", Double.valueOf(data.get(i).toString()));
-						dataCell.setCellValue(Float.parseFloat(convert));
+						dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));
 					}
 					else{
 						dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));

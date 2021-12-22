@@ -117,7 +117,7 @@ public class StyleUtils {
 
 	public static void setCurrency(Sheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
-		cellStyle.setDataFormat(format.getFormat("#,##0.00"));
+		cellStyle.setDataFormat(format.getFormat("#,##0.00\\ TL"));
 	}
 
 	public static void setCount(Sheet sheet, CellStyle cellStyle) {
@@ -138,9 +138,9 @@ public class StyleUtils {
 	public static void setPercentage(Sheet sheet, CellStyle cellStyle, GenericReports.ColumnMetadata columnMetadata) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		if(columnMetadata.getDecimalPoint()==0){
-			cellStyle.setDataFormat(format.getFormat(BuiltinFormats.getBuiltinFormat(9)));
+			cellStyle.setDataFormat(format.getFormat("% 0"));
 		}else{
-			cellStyle.setDataFormat(format.getFormat(BuiltinFormats.getBuiltinFormat(10)));
+			cellStyle.setDataFormat(format.getFormat("% 0.0"));
 		}
 
 	}
