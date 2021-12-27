@@ -98,6 +98,7 @@ public class GenericReports {
 		public static XSSFWorkbook create() {
 			for (ReportData reportData: reportDataList) {
 				XSSFSheet sheet = wb.createSheet(reportData.getReportType());
+
 				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 					sheet.setZoom(60);
 				}
@@ -124,7 +125,7 @@ public class GenericReports {
 			chartProps.setValueLabel(chartProps.getValueKey());
 			return chartProps;
 		}
-		private static CellStyle getCellStyle(Sheet sheet, String type, ColumnMetadata columnMetadata, int size){
+		private static CellStyle getCellStyle(XSSFSheet sheet, String type, ColumnMetadata columnMetadata, int size){
 			CellStyle dataStyle = getBorderedBoldCellStyle(sheet, size);
 			CellStyle headerStyle = getHeaderRowStyle(sheet, size);
 			CellStyle currStyle = getBorderedBoldCurrencyCellStyle(sheet,size);
@@ -300,14 +301,11 @@ public class GenericReports {
 			return offsetYCounter;
 		}
 
-		public void write(Sheet sheet, int startOffsetY, int startOffsetX) {
+		public void write(XSSFSheet sheet, int startOffsetY, int startOffsetX) {
 			sheet.setDefaultColumnWidth(14);
 			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 				sheet.setDefaultRowHeight((short) 17.0);
 				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
-			}else if (this.reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")){
-				sheet.setDefaultRowHeight((short) 6.0);
-				sheet.setDefaultRowHeight((short) -1);
 			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
 				sheet.setDefaultRowHeight((short) 6.0);
 				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
@@ -350,7 +348,7 @@ public class GenericReports {
 			}
 
 			for (int i = 0; i <= data.size(); i++) {
-				Row dataRow = sheet.getRow(i + offsetYCounter);
+				XSSFRow dataRow = sheet.getRow(i + offsetYCounter);
 				if(dataRow == null) {
 					dataRow = sheet.createRow(i + offsetYCounter);
 				}
@@ -362,7 +360,7 @@ public class GenericReports {
 					RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
 					RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
 				}
-				Cell dataCell = dataRow.createCell(startOffsetX);
+				XSSFCell dataCell = dataRow.createCell(startOffsetX);
 				// style the bottom rows
 				if (data.size() == i) {
 					if (!disableBottomRow){
@@ -449,31 +447,24 @@ public class GenericReports {
 					else{
 						dataCell.setCellValue(Float.parseFloat(data.get(i).toString()));
 					}
-					dataRow.setHeight((short) -1);
 				}
 				else if(data.get(i) instanceof Integer) {
 					dataCell.setCellValue(Integer.parseInt(data.get(i).toString()));
-					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof BigDecimal) {
 					dataCell.setCellValue(((BigDecimal) data.get(i)).doubleValue());
-					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof String) {
 					dataCell.setCellValue(data.get(i).toString());
-					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof Long) {
 					dataCell.setCellValue((Long) data.get(i));
-					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof Double) {
 					dataCell.setCellValue((Double) data.get(i));
-					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) != null) {
 					dataCell.setCellValue(data.get(i).toString());
-					dataRow.setHeight((short) -1);
 				}
 			}
 			offsetYCounter += data.size();
@@ -507,7 +498,7 @@ public class GenericReports {
 			this.startOffsetX = startOffsetX;
 		}
 
-		public void write(Sheet sheet, ReportData reportData) {
+		public void write(XSSFSheet sheet, ReportData reportData) {
 			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
 					|| reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")
 					|| reportData.reportType.substring(0,1).equals(" ")){
@@ -639,7 +630,7 @@ public class GenericReports {
 			}
 		}
 
-		private void addTotalSumCell(Sheet sheet) {
+		private void addTotalSumCell(XSSFSheet sheet) {
 			AtomicLong totalSum = new AtomicLong();
 			reportData.getAddToTotalSumList().forEach((key) -> {
 				String methodName = reportData.getColumnToMetadataMapping().get(key).getFunctionName();
@@ -669,7 +660,7 @@ public class GenericReports {
 			sumCell.setCellStyle(getHeaderRowStyle(sheet, reportData.headerFontSize));
 		}
 
-		public void addChart(Sheet sheet, List data, ChartProps chartProps, int chartOrder) {
+		public void addChart(XSSFSheet sheet, List data, ChartProps chartProps, int chartOrder) {
 			ChartDrawingService drawer = null;
 			Integer pictureIndex = null;
 			try {
