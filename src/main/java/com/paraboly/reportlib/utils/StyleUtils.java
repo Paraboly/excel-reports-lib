@@ -135,6 +135,10 @@ public class StyleUtils {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat(""));
 	}
+	public static void setLink(XSSFSheet sheet, CellStyle cellStyle) {
+		DataFormat format = sheet.getWorkbook().createDataFormat();
+		cellStyle.setDataFormat(format.getFormat(""));
+	}
 
 	public static void setPercentage(XSSFSheet sheet, CellStyle cellStyle, GenericReports.ColumnMetadata columnMetadata) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
