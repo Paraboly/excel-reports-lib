@@ -374,12 +374,14 @@ public class GenericReports {
 					dataRow = sheet.createRow(i + offsetYCounter);
 				}
 				if(columnSize > 1) {
-					CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
-					sheet.addMergedRegion(region);
-					RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
-					RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
-					RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
-					RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
+					if (i != data.size() || !disableBottomRow){
+						CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
+						sheet.addMergedRegion(region);
+						RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
+						RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
+						RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
+						RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
+					}
 				}
 				Cell dataCell = dataRow.createCell(startOffsetX);
 				// style the bottom rows
