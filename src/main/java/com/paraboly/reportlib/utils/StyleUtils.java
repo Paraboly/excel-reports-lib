@@ -3,12 +3,13 @@ package com.paraboly.reportlib.utils;
 import com.paraboly.reportlib.GenericReports;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 /**
  * Need to add builder
  */
 public class StyleUtils {
-	private static Font getBoldFont(Sheet sheet, int size) {
+	private static Font getBoldFont(XSSFSheet sheet, int size) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
 		font.setFontHeightInPoints((short) size);
@@ -16,7 +17,7 @@ public class StyleUtils {
 		return font;
 	}
 
-	private static Font getTitleBoldFont(Sheet sheet, int size) {
+	private static Font getTitleBoldFont(XSSFSheet sheet, int size) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
 		font.setFontHeightInPoints((short) size);
@@ -24,14 +25,14 @@ public class StyleUtils {
 		return font;
 	}
 
-	private static Font getHeaderFont(Sheet sheet, int size) {
+	private static Font getHeaderFont(XSSFSheet sheet, int size) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
 		font.setFontHeightInPoints((short) size);
 		font.setFontName("Times New Roman");
 		return font;
 	}
-	public static CellStyle getTitleHeaderStyle(Sheet sheet, int size) {
+	public static CellStyle getTitleHeaderStyle(XSSFSheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setWrapText(true);
@@ -42,7 +43,7 @@ public class StyleUtils {
 
 
 
-	public static CellStyle getHeaderStyle(Sheet sheet, int size) {
+	public static CellStyle getHeaderStyle(XSSFSheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		cellStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -50,7 +51,7 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
-	public static CellStyle getBorderedCellStyle(Sheet sheet) {
+	public static CellStyle getBorderedCellStyle(XSSFSheet sheet) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
 		cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -62,7 +63,7 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
-	public static CellStyle getBorderedBoldCellStyle(Sheet sheet, int size) {
+	public static CellStyle getBorderedBoldCellStyle(XSSFSheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
 		cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -75,7 +76,7 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
-	public static CellStyle getBorderedBoldCurrencyCellStyle(Sheet sheet, int size) {
+	public static CellStyle getBorderedBoldCurrencyCellStyle(XSSFSheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
 		cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -88,7 +89,7 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
-	public static CellStyle getBorderedBoldCellStyleWithBackgroundColor(Sheet sheet, short bg, int size) {
+	public static CellStyle getBorderedBoldCellStyleWithBackgroundColor(XSSFSheet sheet, short bg, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
 		cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -100,7 +101,7 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
-	public static CellStyle getHeaderRowStyle(Sheet sheet, int size) {
+	public static CellStyle getHeaderRowStyle(XSSFSheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
 		cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -115,31 +116,31 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
-	public static void setCurrency(Sheet sheet, CellStyle cellStyle) {
+	public static void setCurrency(XSSFSheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat("#,##0.00\\ TL"));
 	}
 
-	public static void setCount(Sheet sheet, CellStyle cellStyle) {
+	public static void setCount(XSSFSheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat("#,##0"));
 	}
 
-	public static void setYear(Sheet sheet, CellStyle cellStyle) {
+	public static void setYear(XSSFSheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat("0"));
 	}
 
-	public static void setText(Sheet sheet, CellStyle cellStyle) {
+	public static void setText(XSSFSheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat(""));
 	}
-	public static void setLink(Sheet sheet, CellStyle cellStyle) {
+	public static void setLink(XSSFSheet sheet, CellStyle cellStyle) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		cellStyle.setDataFormat(format.getFormat(""));
 	}
 
-	public static void setPercentage(Sheet sheet, CellStyle cellStyle, GenericReports.ColumnMetadata columnMetadata) {
+	public static void setPercentage(XSSFSheet sheet, CellStyle cellStyle, GenericReports.ColumnMetadata columnMetadata) {
 		DataFormat format = sheet.getWorkbook().createDataFormat();
 		if(columnMetadata.getDecimalPoint()==0){
 			cellStyle.setDataFormat(format.getFormat("% 0"));
