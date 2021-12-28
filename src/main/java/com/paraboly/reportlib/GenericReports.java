@@ -1,6 +1,8 @@
 package com.paraboly.reportlib;
 
+import com.sun.corba.se.spi.orbutil.threadpool.Work;
 import lombok.Data;
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
@@ -179,6 +181,17 @@ public class GenericReports {
 				setText(sheet, textStyle);
 				return textStyle;
 			}
+			else if(type.equals("link")){
+				CellStyle linkStyle = sheet.getWorkbook().createCellStyle();
+				linkStyle.cloneStyleFrom(dataStyle);
+				if (columnMetadata.getAlignment().equals("RIGHT")){
+					linkStyle.setAlignment(HorizontalAlignment.RIGHT);
+				}else if(columnMetadata.getAlignment().equals("LEFT")){
+					linkStyle.setAlignment(HorizontalAlignment.LEFT);
+				}
+				setLink(sheet, linkStyle);
+				return linkStyle;
+			}
 			else{
 				return headerStyle;
 			}
@@ -206,11 +219,14 @@ public class GenericReports {
 					case "text":
 						fieldStyle = getCellStyle(sheet, "text", columnMetadata,reportData.fontSize);
 						break;
+					case "link":
+						fieldStyle = getCellStyle(sheet, "link", columnMetadata,reportData.fontSize);
+						break;
 				}
 				map.put(columnName,
 						new ColumnDefinition<String>(
 								columnMetadata.getColumnSize(), columnName, fieldStyle, headerStyle,
-								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), reportData.getDisableBottomRow(), reportData, columnMetadata.getAlignment(), columnMetadata.getIsDiscount(), columnMetadata.getDecimalPoint(), columnMetadata.getIsMerged()));
+								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), reportData.getDisableBottomRow(), reportData, columnMetadata.getAlignment(), columnMetadata.getIsDiscount(), columnMetadata.getDecimalPoint(), columnMetadata.getIsMerged(), columnMetadata.cellContent));
 			});
 
 			for (Object data: reportData.getElementList()) {
@@ -253,6 +269,7 @@ public class GenericReports {
 		private Boolean isDiscount;
 		private Integer decimalPoint;
 		private Boolean isMerged;
+		private String cellContent;
 
 		public ColumnDefinition(int columnSize,
 								String column,
@@ -266,7 +283,8 @@ public class GenericReports {
 								String alignment,
 								Boolean isDiscount,
 								Integer decimalPoint,
-								Boolean isMerged
+								Boolean isMerged,
+								String cellContent
 		) {
 			this.columnSize = columnSize;
 			this.column = column;
@@ -281,6 +299,7 @@ public class GenericReports {
 			this.isDiscount = isDiscount;
 			this.decimalPoint = decimalPoint;
 			this.isMerged = isMerged;
+			this.cellContent = cellContent;
 			data = new ArrayList<T>();
 		}
 
@@ -460,7 +479,34 @@ public class GenericReports {
 					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof String) {
-					dataCell.setCellValue(data.get(i).toString());
+					if(cellContent.equals("link")){
+						CreationHelper createHelper = sheet.getWorkbook().getCreationHelper();
+						Hyperlink link = createHelper.createHyperlink(HyperlinkType.DOCUMENT);
+						if(data.get(i).toString().equals(" YILI TENZİLAT")){
+							link.setAddress(" " + this.reportData.getYear() + " YILI TENZİLAT");
+						}
+						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
+							link.setAddress(" " + (this.reportData.getYear() - 1) + " YILI TENZİLAT");
+						}
+						else{
+							link.setAddress(data.get(i).toString());
+						}
+						dataCell.setCellValue("Sayfaya git");
+						dataCell.setHyperlink(link);
+					}
+					else{
+						if(data.get(i).toString().equals(" YILI TENZİLAT")){
+							dataCell.setCellValue(" " + this.reportData.getYear() + " YILI TENZİLAT");
+						}
+						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
+							dataCell.setCellValue(" " + (this.reportData.getYear() - 1) + " YILI TENZİLAT");
+						}
+						else{
+							dataCell.setCellValue(data.get(i).toString());
+						}
+					}
+
+					dataCell.setCellValue(dataCell.getStringCellValue().trim());
 					dataRow.setHeight((short) -1);
 				}
 				else if (data.get(i) instanceof Long) {
@@ -564,6 +610,9 @@ public class GenericReports {
 						reportData.reportType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI") ||
 						reportData.reportType.equals(" İHALE USULÜNE GÖRE TENZİLAT DAĞILIMI")){
 					title = reportData.year.toString() + " YILI YAPIM İHALE TUTARININ\n"+reportData.reportType;
+				}
+				else if(reportData.reportType.equals(" İÇİNDEKİLER")){
+					title = reportData.year + " YILI ÖN MALİ KONTROL RAPOR\n" + reportData.reportType;
 				}
 				else{
 					title=header;
