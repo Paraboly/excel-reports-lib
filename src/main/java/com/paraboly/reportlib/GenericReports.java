@@ -13,6 +13,8 @@ import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot3D;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STHorizontalAlignment;
 
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -320,15 +322,38 @@ public class GenericReports {
 			return offsetYCounter;
 		}
 
+		public static void reformatCell(XSSFCell dataCell, int columnSize){
+			String fontName = dataCell.getCellStyle().getFont().getFontName();
+			int fontSize = dataCell.getCellStyle().getFont().getFontHeightInPoints();
+			String value = dataCell.getStringCellValue();
+
+			java.awt.Font font = new java.awt.Font(fontName, 0, fontSize);
+			FontRenderContext frc = new FontRenderContext(new AffineTransform(), true, true);
+
+			float textwidth = (float) font.getStringBounds(value, frc).getWidth() * 1.088f;
+			float textheight = (float) font.getStringBounds(value, frc).getHeight() * 1.088f;
+
+
+			float columnWidthInPoints = dataCell.getSheet().getDefaultColumnWidth() * 7.3f * columnSize;
+
+			if(textwidth > columnWidthInPoints){
+
+				float oneCharLength = textheight;
+				float count = textwidth / columnWidthInPoints;
+
+				float multiplier = (float) Math.ceil(count);
+				float length = oneCharLength * multiplier;
+
+				if(length > dataCell.getRow().getHeightInPoints())
+					dataCell.getRow().setHeightInPoints(length * 1.5f);
+			}
+			else if(textheight * 1.5f > dataCell.getRow().getHeightInPoints()) {
+				dataCell.getRow().setHeightInPoints(textheight * 1.5f);
+			}
+		}
 		public void write(XSSFSheet sheet, int startOffsetY, int startOffsetX) {
 			sheet.setDefaultColumnWidth(14);
-			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
-				sheet.setDefaultRowHeight((short) 17.0);
-				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
-			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
-				sheet.setDefaultRowHeight((short) 6.0);
-				sheet.setDefaultRowHeightInPoints((4* sheet.getDefaultRowHeight()));
-			}
+
 			this.startOffsetX = startOffsetX;
 			this.startOffsetY = startOffsetY;
 
@@ -337,6 +362,22 @@ public class GenericReports {
 			if(columnHeaderRow == null) {
 				columnHeaderRow = sheet.createRow(offsetYCounter);
 			}
+			double height = 0;
+			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+				height = 17.0;
+			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
+				height = 6.0;
+			}
+			else{
+				height = 7.0;
+			}
+
+
+			columnHeaderRow.setHeight((short)height);
+			columnHeaderRow.setHeightInPoints((4* columnHeaderRow.getHeight()));
+
+
+
 			if(columnSize >= 1 && reportData.mergeTwoRow==true) {
 				CellRangeAddress region = new CellRangeAddress(offsetYCounter, offsetYCounter+1, startOffsetX, startOffsetX + columnSize - 1);
 				sheet.addMergedRegion(region);
@@ -345,6 +386,12 @@ public class GenericReports {
 				RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
 				RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
 				offsetYCounter += 2;
+
+				sheet.getRow(columnHeaderRow.getRowNum() + 1).setHeight((short) height);
+				sheet.getRow(columnHeaderRow.getRowNum() + 1)
+						.setHeightInPoints(4 * sheet.getRow(columnHeaderRow.getRowNum() + 1).getHeight());
+
+
 			}else if(columnSize==1 && reportData.mergeTwoRow==false){
 				offsetYCounter += 1;
 			}
@@ -359,7 +406,7 @@ public class GenericReports {
 				}
 				offsetYCounter += 1;
 			}
-			if(!(isMerged && column.equals("İHALE TÜRÜ"))) {
+			if(!(isMerged && column.equals("İHALE TÜRÜ"))) { // control
 				Cell cell = columnHeaderRow.createCell(startOffsetX);
 				cell.setCellValue(column);
 				if (headerStyle != null)
@@ -421,6 +468,7 @@ public class GenericReports {
 				NumberFormat turkishLirasFormat = NumberFormat.getCurrencyInstance(turkey);
 
 				if (data.size() == i) {
+					boolean isNumber = false;
 					if (!disableBottomRow){
 						double sum = 0;
 						int stringsCount = 0;
@@ -449,13 +497,20 @@ public class GenericReports {
 						else if (bottomCalculation != null && bottomCalculation.equals("sum") && !bottomCalculation.equals("sumPercentage") && !bottomCalculation.equals("sumCount"))
 							dataCell.setCellValue(!bottomCalculationText.equals("") ? bottomCalculationText+"\n"+turkishLirasFormat.format(sum)
 												: turkishLirasFormat.format(sum));
-						else if (bottomCalculation != null && bottomCalculation.equals("sumPercentage"))
+						else if (bottomCalculation != null && bottomCalculation.equals("sumPercentage")){
 							dataCell.setCellValue(sum);
-						else if (bottomCalculation != null && bottomCalculation.equals("sumCount"))
+							isNumber = true;
+						}
+						else if (bottomCalculation != null && bottomCalculation.equals("sumCount")){
 							dataCell.setCellValue(sum);
+							isNumber = true;
+						}
 						if (bottomCalculation != null && !bottomCalculation.equals("string:") && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
 							dataCell.setCellValue(bottomCalculation.split(":")[1]);
 						}
+					}
+					if(!isNumber && !dataCell.getStringCellValue().isEmpty()){
+						reformatCell(dataCell, columnSize);
 					}
 				}
 				else if(data.get(i) instanceof Float) {
@@ -504,6 +559,9 @@ public class GenericReports {
 					}
 
 					dataCell.setCellValue(dataCell.getStringCellValue().trim());
+
+					if(!dataCell.getStringCellValue().isEmpty())
+						reformatCell(dataCell, columnSize);;
 				}
 				else if (data.get(i) instanceof Long) {
 					dataCell.setCellValue((Long) data.get(i));
@@ -547,6 +605,14 @@ public class GenericReports {
 		}
 
 		public void write(XSSFSheet sheet, ReportData reportData) {
+
+			Row headerRow = sheet.getRow(startOffsetY);
+			if(headerRow == null) {
+				headerRow = sheet.createRow(startOffsetY);
+			}
+
+			int rowSize = 1;
+
 			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
 					|| reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")
 					|| reportData.reportType.substring(0,1).equals(" ")){
@@ -556,10 +622,7 @@ public class GenericReports {
 				RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
 				RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
 				RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
-				Row headerRow = sheet.getRow(startOffsetY);
-				if(headerRow == null) {
-					headerRow = sheet.createRow(startOffsetY);
-				}
+				rowSize = reportData.headerEndOffsetY - reportData.headerStartOffsetY + 1;
 				String title;
 				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 					title = reportData.year.toString()+" YILI" + "\n"
@@ -661,15 +724,31 @@ public class GenericReports {
 				}
 			}
 			else{
-				Row headerRow = sheet.getRow(startOffsetY);
-				if(headerRow == null) {
-					headerRow = sheet.createRow(startOffsetY);
-				}
 				Cell headerRowCell = headerRow.createCell(startOffsetX);
 				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
 				headerRowCell.setCellValue(header);
 
 				offsetXCounter = startOffsetX;
+			}
+
+			double height;
+			if (reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+				height = 17.0;
+
+			}else if (reportData.reportType.substring(0,1).equals(" ")){
+				height = 6.0;
+			}
+			else{
+				height = 7.0;
+			}
+
+			int rowNum = headerRow.getRowNum();
+
+
+			for(int i = 0; i < rowSize; i++){
+				sheet.getRow(rowNum).setHeight((short) height);
+				sheet.getRow(rowNum).setHeightInPoints((4* sheet.getRow(rowNum).getHeight()));
+				rowNum++;
 			}
 
 			for (int i = 0; i < columnDefinitionList.size(); i++) {
