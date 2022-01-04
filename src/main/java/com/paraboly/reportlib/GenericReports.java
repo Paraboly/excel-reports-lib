@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -468,6 +469,8 @@ public class GenericReports {
 				NumberFormat turkishLirasFormat = NumberFormat.getCurrencyInstance(turkey);
 
 				if (data.size() == i) {
+					DecimalFormat df = new DecimalFormat();
+					df.setMaximumFractionDigits(decimalPoint);
 					boolean isNumber = false;
 					if (!disableBottomRow){
 						double sum = 0;
@@ -486,10 +489,16 @@ public class GenericReports {
 						}
 						if (bottomCalculation == null || bottomCalculation.equals("string:"))
 							dataCell.setCellValue("");
-						else if (bottomCalculation != null && bottomCalculationText.equals("Tenzilat:"))
-							dataCell.setCellValue(bottomCalculationText+"\n"+ "%"+bottomValue);
-						else if (bottomCalculation != null && bottomCalculationText.equals("TenzilatForGeneral:"))
-							dataCell.setCellValue("% "+bottomValue);
+						else if (bottomCalculation != null && bottomCalculationText.equals("Tenzilat:")){
+							Float d = Float.parseFloat(bottomValue);
+							dataCell.setCellValue(bottomCalculationText+"\n"+ "%"+ df.format(d));
+						}
+
+						else if (bottomCalculation != null && bottomCalculationText.equals("TenzilatForGeneral:")){
+							Float d = Float.parseFloat(bottomValue);
+							dataCell.setCellValue("% "+ df.format(d));
+						}
+
 						else if (bottomCalculation != null && bottomCalculation.equals("avg"))
 							dataCell.setCellValue(bottomCalculationText+"\n"+ sum / data.size());
 						else if (bottomCalculation != null && bottomCalculation.equals("count"))
