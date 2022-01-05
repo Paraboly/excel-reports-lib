@@ -613,24 +613,48 @@ public class GenericReports {
 			this.startOffsetX = startOffsetX;
 		}
 
-		public void write(XSSFSheet sheet, ReportData reportData) {
+		private Cell mergeCellAndSetBorder(XSSFSheet sheet, int rowStart, int rowEnd, int colStart, int colEnd){
 
+			CellStyle borderStyle;
+			if(rowStart == 1 && colStart == 1)
+				borderStyle = getTitleHeaderStyle(sheet, reportData.titleFontSize);
+			else{
+				borderStyle = getTitleHeaderStyle(sheet, reportData.headerFontSize);
+			}
+
+			borderStyle.setBorderBottom(BorderStyle.THIN);
+			borderStyle.setBorderLeft(BorderStyle.THIN);
+			borderStyle.setBorderRight(BorderStyle.THIN);
+			borderStyle.setBorderTop(BorderStyle.THIN);
+			borderStyle.setAlignment(HorizontalAlignment.CENTER);
+
+			for(int j = rowStart; j <= rowEnd; j++){
+				Row row = sheet.getRow(j);
+				if(row == null)
+					row = sheet.createRow(j);
+
+				for (int i = colStart; i <= colEnd; ++i) {
+					Cell cell = row.createCell(i);
+					cell.setCellStyle(borderStyle);
+				}
+			}
+			sheet.addMergedRegion(new CellRangeAddress(rowStart, rowEnd, colStart, colEnd));
+			return sheet.getRow(rowStart).getCell(colStart);
+		}
+
+		public void write(XSSFSheet sheet, ReportData reportData) {
 			Row headerRow = sheet.getRow(startOffsetY);
 			if(headerRow == null) {
 				headerRow = sheet.createRow(startOffsetY);
 			}
-
 			int rowSize = 1;
 
 			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
 					|| reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")
 					|| reportData.reportType.substring(0,1).equals(" ")){
-				CellRangeAddress region = new CellRangeAddress(reportData.headerStartOffsetY, reportData.headerEndOffsetY, reportData.headerStartOffsetX, reportData.headerEndOffsetX);
-				sheet.addMergedRegion(region);
-				RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
-				RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
-				RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
-				RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
+
+				Cell headerCell = mergeCellAndSetBorder(sheet,reportData.headerStartOffsetY, reportData.headerEndOffsetY, reportData.headerStartOffsetX, reportData.headerEndOffsetX);
+
 				rowSize = reportData.headerEndOffsetY - reportData.headerStartOffsetY + 1;
 				String title;
 				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
@@ -683,51 +707,19 @@ public class GenericReports {
 					title=header;
 				}
 
-				Cell headerRowCell = headerRow.createCell(startOffsetX);
-				headerRowCell.setCellStyle(getTitleHeaderStyle(sheet, reportData.titleFontSize));
-				headerRowCell.setCellValue(title);
+				headerCell.setCellValue(title);
 
 				offsetXCounter = startOffsetX;
 				startOffsetY = reportData.headerEndOffsetY;
 
 				if(reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ KONTROL")){
-					CellRangeAddress regionForCount = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.headerStartOffsetX+2, reportData.yearCount+1);
-					sheet.addMergedRegion(regionForCount);
-					RegionUtil.setBorderBottom(BorderStyle.THIN, regionForCount, sheet);
-					RegionUtil.setBorderTop(BorderStyle.THIN, regionForCount, sheet);
-					RegionUtil.setBorderLeft(BorderStyle.THIN, regionForCount, sheet);
-					RegionUtil.setBorderRight(BorderStyle.THIN, regionForCount, sheet);
-					Row subTitleRow = sheet.getRow(startOffsetY+1);
-					if(subTitleRow == null) {
-						subTitleRow = sheet.createRow(startOffsetY+1);
-					}
-					Cell subTitleRowCell1 = subTitleRow.createCell(startOffsetX+2);
-					subTitleRowCell1.setCellStyle(getTitleHeaderStyle(sheet, reportData.headerFontSize));
+					Cell subTitleRowCell1 = mergeCellAndSetBorder(sheet,startOffsetY+1, startOffsetY+1, reportData.headerStartOffsetX+2, reportData.yearCount+1);
 					subTitleRowCell1.setCellValue("DOSYA SAYISI");
 
-					CellRangeAddress regionType = new CellRangeAddress(startOffsetY+1, startOffsetY+2, reportData.headerStartOffsetX, reportData.headerStartOffsetX+1);
-					sheet.addMergedRegion(regionType);
-					RegionUtil.setBorderBottom(BorderStyle.THIN, regionType, sheet);
-					RegionUtil.setBorderTop(BorderStyle.THIN, regionType, sheet);
-					RegionUtil.setBorderLeft(BorderStyle.THIN, regionType, sheet);
-					RegionUtil.setBorderRight(BorderStyle.THIN, regionType, sheet);
-					Row typeRow = sheet.getRow(startOffsetY+1);
-					Cell typeCell = typeRow.createCell(startOffsetX);
-					typeCell.setCellStyle(getTitleHeaderStyle(sheet, reportData.headerFontSize));
+					Cell typeCell = mergeCellAndSetBorder(sheet,startOffsetY+1, startOffsetY+2, reportData.headerStartOffsetX, reportData.headerStartOffsetX+1);
 					typeCell.setCellValue("İHALE TÜRÜ");
 
-					CellRangeAddress regionForCost = new CellRangeAddress(startOffsetY+1, startOffsetY+1, reportData.yearCount+2, reportData.yearCount*2+1);
-					sheet.addMergedRegion(regionForCost);
-					RegionUtil.setBorderBottom(BorderStyle.THIN, regionForCost, sheet);
-					RegionUtil.setBorderTop(BorderStyle.THIN, regionForCost, sheet);
-					RegionUtil.setBorderLeft(BorderStyle.THIN, regionForCost, sheet);
-					RegionUtil.setBorderRight(BorderStyle.THIN, regionForCost, sheet);
-					Row subTitleRowCost = sheet.getRow(startOffsetY+1);
-					if(subTitleRowCost == null) {
-						subTitleRowCost = sheet.createRow(startOffsetY+1);
-					}
-					Cell subTitleRowCell2 = subTitleRowCost.createCell(startOffsetX+ reportData.yearCount+2);
-					subTitleRowCell2.setCellStyle(getTitleHeaderStyle(sheet, reportData.headerFontSize));
+					Cell subTitleRowCell2 = mergeCellAndSetBorder(sheet, startOffsetY+1, startOffsetY+1, reportData.yearCount+2, reportData.yearCount*2+1);
 					subTitleRowCell2.setCellValue("İHALE TUTARI (x1.000.000 TL)");
 					startOffsetY+=1;
 				}
