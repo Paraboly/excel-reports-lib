@@ -65,6 +65,7 @@ public class GenericReports {
 		private String bottomCalculation = "string:"; // potential values are sum, avg, or string:BOTTOM_NAME
 		private String bottomCalculationText = "";
 		private String bottomValue;
+		private String bottomTitle;
 		private String cellContent = "text"; // potential values are money, percentage, count, year
 		private String alignment = "CENTER";
 		private Boolean isDiscount=false;
@@ -230,7 +231,7 @@ public class GenericReports {
 				map.put(columnName,
 						new ColumnDefinition<String>(
 								columnMetadata.getColumnSize(), columnName, fieldStyle, headerStyle,
-								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), reportData.getDisableBottomRow(), reportData, columnMetadata.getAlignment(), columnMetadata.getIsDiscount(), columnMetadata.getDecimalPoint(), columnMetadata.getIsMerged(), columnMetadata.cellContent));
+								columnMetadata.getBottomCalculation(),columnMetadata.getBottomCalculationText(), columnMetadata.getBottomValue(), columnMetadata.getBottomTitle(), reportData.getDisableBottomRow(), reportData, columnMetadata.getAlignment(), columnMetadata.getIsDiscount(), columnMetadata.getDecimalPoint(), columnMetadata.getIsMerged(), columnMetadata.cellContent));
 			});
 
 			for (Object data: reportData.getElementList()) {
@@ -267,6 +268,7 @@ public class GenericReports {
 		private String bottomCalculation;
 		private String bottomCalculationText;
 		private String bottomValue;
+		private String bottomTitle;
 		private Boolean disableBottomRow;
 		private ReportData reportData;
 		private String alignment;
@@ -282,6 +284,7 @@ public class GenericReports {
 								String bottomCalculation,
 								String bottomCalculationText,
 								String bottomValue,
+								String bottomTitle,
 								Boolean disableBottomRow,
 								ReportData reportData,
 								String alignment,
@@ -297,6 +300,7 @@ public class GenericReports {
 			this.bottomCalculation = bottomCalculation;
 			this.bottomCalculationText = bottomCalculationText;
 			this.bottomValue = bottomValue;
+			this.bottomTitle = bottomTitle;
 			this.disableBottomRow = disableBottomRow;
 			this.reportData = reportData;
 			this.alignment = alignment;
@@ -517,6 +521,14 @@ public class GenericReports {
 						if (bottomCalculation != null && !bottomCalculation.equals("string:") && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
 							dataCell.setCellValue(bottomCalculation.split(":")[1]);
 						}
+					}
+					if(bottomTitle != null){
+						CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
+						sheet.addMergedRegion(region);
+
+						dataCell.setCellStyle(getBottomTitleCellStyle(sheet,12));
+						dataCell.setCellValue(bottomTitle);
+						bottomTitle = null;
 					}
 					if(!isNumber && !dataCell.getStringCellValue().isEmpty()){
 						reformatCell(dataCell, columnSize);

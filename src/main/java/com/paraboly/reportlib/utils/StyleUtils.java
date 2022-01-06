@@ -76,6 +76,15 @@ public class StyleUtils {
 		return cellStyle;
 	}
 
+	public static CellStyle getBottomTitleCellStyle(XSSFSheet sheet, int size) {
+		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+		cellStyle.setAlignment(HorizontalAlignment.CENTER);
+		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		cellStyle.setWrapText(true);
+		cellStyle.setFont(getBoldFont(sheet, size));
+		return cellStyle;
+	}
+
 	public static CellStyle getBorderedBoldCurrencyCellStyle(XSSFSheet sheet, int size) {
 		CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
 		cellStyle.setBorderTop(BorderStyle.THIN);
