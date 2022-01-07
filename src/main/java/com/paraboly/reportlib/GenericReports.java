@@ -715,6 +715,9 @@ public class GenericReports {
 				else if(reportData.reportType.equals(" İÇİNDEKİLER")){
 					title = reportData.year + " YILI ÖN MALİ KONTROL RAPOR\n" + reportData.reportType;
 				}
+				else if(reportData.reportType.equals(" YILLARA GÖRE TENZİLAT BÖLGELER")){
+					title ="YILLARA GÖRE TENZİLAT TABLOSU\nBÖLGELER";
+				}
 				else{
 					title=header;
 				}
