@@ -496,6 +496,7 @@ public class GenericReports {
 								stringsCount++;
 							}
 						}
+						//build jitpack
 						if (bottomCalculation == null || bottomCalculation.equals("string:"))
 							dataCell.setCellValue("");
 						else if (bottomCalculation != null && bottomCalculationText.equals("Tenzilat:")){
