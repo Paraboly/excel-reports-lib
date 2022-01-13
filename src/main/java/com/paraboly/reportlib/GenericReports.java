@@ -7,10 +7,15 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.util.IOUtils;
+import org.apache.poi.xddf.usermodel.XDDFEffectContainer;
+import org.apache.poi.xddf.usermodel.XDDFLineProperties;
+import org.apache.poi.xddf.usermodel.XDDFSolidFillProperties;
+import org.apache.poi.xddf.usermodel.chart.*;
 import org.apache.poi.xssf.usermodel.*;
 import org.jfree.chart.labels.PieSectionLabelGenerator;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot3D;
+import org.openxmlformats.schemas.drawingml.x2006.chart.*;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STHorizontalAlignment;
 
 import java.awt.font.FontRenderContext;
@@ -808,35 +813,25 @@ public class GenericReports {
 
 		public void addChart(XSSFSheet sheet, List data, ChartProps chartProps, int chartOrder) {
 			ChartDrawingService drawer = null;
-			Integer pictureIndex = null;
 			try {
-				drawer = new ChartDrawingService(chartProps.getTitle(), chartProps.getGroupLabel(), chartProps.getValueLabel());
-				drawer.addData(
-						data, chartProps.getGroupFunctionName(), chartProps.getValueFunctionName(),chartProps.getGroupLabel())
-						.draw(chartProps.getType());
-				InputStream imageStream = drawer.getInputStream();
-				pictureIndex =
-						sheet.getWorkbook().addPicture(IOUtils.toByteArray(imageStream), Workbook.PICTURE_TYPE_JPEG);
-				XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
-				CreationHelper helper = sheet.getWorkbook().getCreationHelper();
-				ClientAnchor anchor = helper.createClientAnchor();
-				int defaultOffsetY = (columnDefinitionList.get(0).getStartOffsetY() + columnDefinitionList.get(0).getData().size() + 3);
+
+				int defaultOffsetY = (columnDefinitionList.get(0).getStartOffsetY() + columnDefinitionList.get(0).getData().size() + 5);
 				startOffsetY = defaultOffsetY + 26 * chartOrder;
-				startOffsetX = 2;
-				anchor.setCol1( 0 );
-				anchor.setRow1(startOffsetY); // same row is okay
-				anchor.setRow2(startOffsetY);
-				anchor.setCol2( 1 );
+
+				XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
+				XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, startOffsetY, 7, startOffsetY + 20);
 				anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_AND_RESIZE);
-				Picture pict = drawing.createPicture(anchor, pictureIndex);
-				pict.resize();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
+				XDDFChart chart = drawing.createChart(anchor);
+				chart.setTitleText(chartProps.getTitle());
+				chart.setTitleOverlay(false);
+
+				drawer = new ChartDrawingService(chartProps.getTitle(), chartProps.getGroupLabel(), chartProps.getValueLabel(), chart);
+				drawer.addData(
+								data, chartProps.getGroupFunctionName(), chartProps.getValueFunctionName(),chartProps.getGroupLabel())
+						.draw(chartProps.getType());
+
+			}
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

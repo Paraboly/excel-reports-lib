@@ -1,6 +1,8 @@
 package com.paraboly.reportlib;
 
 import lombok.SneakyThrows;
+import org.apache.poi.xddf.usermodel.*;
+import org.apache.poi.xddf.usermodel.chart.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtils;
@@ -15,6 +17,7 @@ import org.jfree.chart.util.DefaultShadowGenerator;
 import org.jfree.chart.util.TableOrder;
 import org.jfree.data.category.CategoryToPieDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTShapeProperties;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
@@ -64,8 +67,21 @@ public class ChartDrawingService {
 	}
 
 	private DefaultCategoryDataset dataset;
+	private String[] categories;
+	private Double[] values;
+	private XDDFChart XDDFchart;
 	private String title, categoryLabel, valueLabel;
 	private JFreeChart chart;
+	private byte[][] colors =  new byte[][] {
+				new byte[]{(byte)78, (byte)127, (byte)187},
+				new byte[]{(byte)189, (byte)79, (byte)76},
+				new byte[]{(byte)153, (byte)185, (byte)88},
+				new byte[]{(byte)126, (byte)99, (byte)159},
+				new byte[]{(byte)230, (byte)218, (byte)119},
+				new byte[]{(byte)60, (byte)201, (byte)178},
+				new byte[]{(byte)214, (byte)158, (byte)36},
+				new byte[]{(byte)240, (byte)117, (byte)225}
+	};
 
 	public Integer getHeight() {
 		return height;
@@ -86,18 +102,25 @@ public class ChartDrawingService {
 	private Integer height = 480;
 	private Integer width = 640;
 
-	public ChartDrawingService(String title, String categoryLabel, String valueLabel){
+	public ChartDrawingService(String title, String categoryLabel, String valueLabel, XDDFChart XDDFchart){
 		dataset = new DefaultCategoryDataset();
 		this.title = title;
 		this.categoryLabel = categoryLabel;
 		this.valueLabel = valueLabel;
+		this.XDDFchart = XDDFchart;
 	}
 
 	public ChartDrawingService addData(List<?> dataList, String categoryMethod, String valueMethod, String groupName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		categories = new String[dataList.size()];
+		values = new Double[dataList.size()];
+		int i = 0, j = 0;
+
 		for (Object data: dataList) {
 			String category = (String) data.getClass().getMethod(categoryMethod).invoke(data);
-			Float value = Float.valueOf(data.getClass().getMethod(valueMethod).invoke(data).toString());
-			dataset.addValue(value, groupName, category);
+			Double value = Double.valueOf(data.getClass().getMethod(valueMethod).invoke(data).toString());
+			//dataset.addValue(value, groupName, category);
+			categories[i++] = category;
+			values[j++] = value;
 		}
 		return this;
 	}
@@ -106,10 +129,10 @@ public class ChartDrawingService {
 	public void draw(String chartType) {
 		switch (chartType) {
 			case "bar":
-				chart = drawBarChart();
+				drawBarChartWithXDDF();
 				break;
 			case "pie":
-				chart = drawPieChart();
+				drawPieChartWithXDDF();
 				break;
 			default:
 				break;
@@ -129,7 +152,7 @@ public class ChartDrawingService {
 		return barChartObject;
 	}
 
-	private JFreeChart drawPieChart() {
+	private JFreeChart drawPieChartWithJFree() {
 		CategoryToPieDataset pieDataset = new CategoryToPieDataset(dataset, TableOrder.BY_ROW, 0);
 		JFreeChart pieChartObject = ChartFactory.createPieChart3D(title, pieDataset,true,true,false);
 		final PieSectionLabelGenerator labelGenerator = new StandardPieSectionLabelGenerator("{0} ({2})");
@@ -144,6 +167,91 @@ public class ChartDrawingService {
 		plot.setLabelBackgroundPaint(Color.white);
 
 		return pieChartObject;
+	}
+	private void drawPieChartWithXDDF() {
+
+		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
+		legend.setPosition(LegendPosition.BOTTOM);
+
+		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values);
+
+		XDDFChartData chartData = XDDFchart.createData(ChartTypes.PIE3D, null, null);
+
+		chartData.setVaryColors(true);
+		XDDFChartData.Series series = chartData.addSeries(cat, val);
+		XDDFchart.plot(chartData);
+
+		if (!XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).isSetDLbls())
+			XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).addNewDLbls();
+		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
+				.addNewShowLegendKey().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
+				.addNewShowPercent().setVal(true);
+		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
+				.addNewShowLeaderLines().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
+				.addNewShowVal().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
+				.addNewShowCatName().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
+				.addNewShowSerName().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
+				.addNewShowBubbleSize().setVal(false);
+
+		/*CTShapeProperties shapeProperties = XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0)
+				.getSerArray(0).addNewSpPr();
+
+		shapeProperties.addNewLn().addNewSolidFill()
+				.addNewSrgbClr().setVal(new byte[]{(byte)255,(byte)255,(byte)255});*/
+
+		int pointCount = series.getCategoryData().getPointCount();
+		for (int p = 0; p < pointCount; p++) {
+
+			XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).addNewDPt()
+					.addNewIdx().setVal(p);
+
+			CTShapeProperties shapeProperties = XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0)
+					.getSerArray(0).getDPtArray(p).addNewSpPr();
+
+			shapeProperties.addNewSolidFill().addNewSrgbClr().setVal(colors[p % colors.length]);
+			shapeProperties.addNewLn().addNewSolidFill().addNewSrgbClr()
+					.setVal(new byte[]{(byte)255,(byte)255,(byte)255});
+		}
+
+		series.setFillProperties(new XDDFSolidFillProperties());
+
+		if (XDDFchart.getCTChart().getAutoTitleDeleted() == null) XDDFchart.getCTChart().addNewAutoTitleDeleted();
+		XDDFchart.getCTChart().getAutoTitleDeleted().setVal(false);
+
+		Integer angle = 35;
+		XDDFchart.getOrAddView3D().setXRotationAngle(angle.byteValue());
+	}
+
+	private void drawBarChartWithXDDF() {
+
+		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
+		legend.setPosition(LegendPosition.BOTTOM);
+
+		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
+		bottomAxis.setTitle(categoryLabel);
+		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
+		leftAxis.setTitle(valueLabel);
+		leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
+
+		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values);
+
+		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
+		chartData.setVaryColors(true);
+		XDDFChartData.Series series = chartData.addSeries(cat, val);
+		series.setTitle(categoryLabel, null);
+		XDDFchart.plot(chartData);
+
+		XDDFBarChartData bar = (XDDFBarChartData) chartData;
+		bar.setBarDirection(BarDirection.COL);
+
+
 	}
 
 	public JFreeChart getChart() { return this.chart; }
