@@ -82,12 +82,12 @@ public class GenericReports {
 	public static class ChartProps {
 		private String groupFunctionName;
 		private String groupLabel;
-		private String valueFunctionName;
-		private String valueLabel;
+		private String[] valueFunctionName;
+		private String[] valueLabel;
 		private String type;
 		private String title;
 		private String groupKey;
-		private String valueKey;
+		private String[] valueKey;
 	}
 
 	public static class Builder {
@@ -132,7 +132,12 @@ public class GenericReports {
 			chartProps.setGroupFunctionName(columnMetadata.get(chartProps.getGroupKey()).getFunctionName());
 			chartProps.setGroupLabel(chartProps.getGroupKey());
 
-			chartProps.setValueFunctionName(columnMetadata.get(chartProps.getValueKey()).getFunctionName());
+			chartProps.setValueFunctionName(new String[chartProps.valueKey.length]);
+
+			for(int t = 0; t < chartProps.valueKey.length; t++){
+				chartProps.getValueFunctionName()[t] = columnMetadata.get(chartProps.getValueKey()[t]).getFunctionName();
+			}
+
 			chartProps.setValueLabel(chartProps.getValueKey());
 			return chartProps;
 		}
