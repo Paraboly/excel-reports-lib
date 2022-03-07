@@ -567,13 +567,13 @@ public class GenericReports {
 						CreationHelper createHelper = sheet.getWorkbook().getCreationHelper();
 						Hyperlink link = createHelper.createHyperlink(HyperlinkType.DOCUMENT);
 						if(data.get(i).toString().equals(" YILI TENZİLAT")){
-							link.setAddress(" " + this.reportData.getYear() + " YILI TENZİLAT");
+							link.setAddress("' " + this.reportData.getYear() + " YILI TENZİLAT'!A1");
 						}
 						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
-							link.setAddress(" " + (this.reportData.getYear() - 1) + " YILI TENZİLAT");
+							link.setAddress("' " + (this.reportData.getYear() - 1) + " YILI TENZİLAT'!A1");
 						}
 						else{
-							link.setAddress(data.get(i).toString());
+							link.setAddress("'" + data.get(i).toString() + "'!A1");
 						}
 						dataCell.setCellValue("Sayfaya git");
 						dataCell.setHyperlink(link);
