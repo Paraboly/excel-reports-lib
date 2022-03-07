@@ -124,6 +124,10 @@ public class GenericReports {
 						tableMapperExtended.addChart(sheet, reportData.getElementList(), chartProps, i.getAndIncrement());
 					});
 				}
+				sheet.getPrintSetup().setPaperSize(PrintSetup.A4_PAPERSIZE);
+				sheet.setFitToPage(true);
+				sheet.getPrintSetup().setFitWidth((short)1);
+				sheet.getPrintSetup().setFitHeight((short)1);
 			}
 			return wb;
 		}
