@@ -214,7 +214,7 @@ public class ChartDrawingService {
 		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
 				.addNewShowVal().setVal(false);
 		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
-				.addNewShowCatName().setVal(false);
+				.addNewShowCatName().setVal(true);
 		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
 				.addNewShowSerName().setVal(false);
 		XDDFchart.getCTChart().getPlotArea().getPie3DChartArray(0).getSerArray(0).getDLbls()
