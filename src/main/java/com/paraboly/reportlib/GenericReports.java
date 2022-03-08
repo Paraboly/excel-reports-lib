@@ -89,6 +89,8 @@ public class GenericReports {
 		private String title;
 		private String groupKey;
 		private String[] valueKey;
+		private boolean isReversed;
+		private String valueFormat;
 	}
 
 	public static class Builder {
@@ -121,7 +123,10 @@ public class GenericReports {
 				if (reportData.chartPropsLinkedList != null) {
 					AtomicInteger i = new AtomicInteger(0);
 					reportData.chartPropsLinkedList.forEach(chartProps -> {
-						fillChartProps(chartProps, reportData.getColumnToMetadataMapping());
+						if(!chartProps.isReversed())
+							fillChartProps(chartProps, reportData.getColumnToMetadataMapping());
+						else
+							fillChartPropsReversed(chartProps, reportData.getColumnToMetadataMapping());
 						tableMapperExtended.addChart(sheet, reportData.getElementList(), chartProps, i.getAndIncrement());
 					});
 				}
@@ -144,6 +149,14 @@ public class GenericReports {
 			}
 
 			chartProps.setValueLabel(chartProps.getValueKey());
+			return chartProps;
+		}
+		private static ChartProps fillChartPropsReversed(ChartProps chartProps, LinkedHashMap<String, ColumnMetadata> columnMetadata) {
+			if(chartProps.getGroupLabel() == null)
+				chartProps.setGroupLabel(chartProps.getGroupKey());
+
+			if(chartProps.getValueLabel() == null)
+				chartProps.setValueLabel(chartProps.getValueKey());
 			return chartProps;
 		}
 		private static CellStyle getCellStyle(XSSFSheet sheet, String type, ColumnMetadata columnMetadata, int size){
@@ -838,10 +851,19 @@ public class GenericReports {
 				chart.setTitleText(chartProps.getTitle());
 				chart.setTitleOverlay(false);
 
-				drawer = new ChartDrawingService(chartProps.getTitle(), chartProps.getGroupLabel(), chartProps.getValueLabel(), chart);
-				drawer.addData(
-								data, chartProps.getGroupFunctionName(), chartProps.getValueFunctionName(),chartProps.getGroupLabel())
-						.draw(chartProps.getType());
+				drawer = new ChartDrawingService(chartProps.getTitle(), chartProps.getGroupLabel(), chartProps.getValueLabel(), chart, chartProps.getValueFormat());
+
+				if(!chartProps.isReversed()){
+					drawer.addData(
+									data, chartProps.getGroupFunctionName(), chartProps.getValueFunctionName(),chartProps.getGroupLabel(), chartProps.getValueKey(), reportData.getColumnToMetadataMapping())
+							.draw(chartProps.getType());
+				}
+				else{
+					drawer.addDataReversed(
+									data, chartProps.getValueKey(), reportData.getColumnToMetadataMapping())
+							.draw(chartProps.getType());
+				}
+
 
 			}
 			catch (Exception e) {

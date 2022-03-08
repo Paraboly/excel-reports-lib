@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class ChartDrawingService {
@@ -74,7 +75,7 @@ public class ChartDrawingService {
 			return result;
 		}
 	}
-
+	private String valueFormat;
 	private DefaultCategoryDataset dataset;
 	private String[] categories;
 	private Double[][] values;
@@ -112,15 +113,16 @@ public class ChartDrawingService {
 	private Integer height = 480;
 	private Integer width = 640;
 
-	public ChartDrawingService(String title, String categoryLabel, String[] valueLabel, XDDFChart XDDFchart){
+	public ChartDrawingService(String title, String categoryLabel, String[] valueLabel, XDDFChart XDDFchart, String valueFormat){
 		dataset = new DefaultCategoryDataset();
 		this.title = title;
 		this.categoryLabel = categoryLabel;
 		this.valueLabel = valueLabel;
 		this.XDDFchart = XDDFchart;
+		this.valueFormat = valueFormat;
 	}
 
-	public ChartDrawingService addData(List<?> dataList, String categoryMethod, String[] valueMethod, String groupName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+	public ChartDrawingService addData(List<?> dataList, String categoryMethod, String[] valueMethod, String groupName, String[] valueKey, LinkedHashMap<String, GenericReports.ColumnMetadata> colData) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		categories = new String[dataList.size()];
 		values = new Double[valueMethod.length][dataList.size()];
 
@@ -129,14 +131,43 @@ public class ChartDrawingService {
 			int i = 0, j = 0;
 
 			for (Object data: dataList) {
-				String category = (String) data.getClass().getMethod(categoryMethod).invoke(data);
-				Double value = Double.valueOf(data.getClass().getMethod(valueMethod[t]).invoke(data).toString());
+
+				String category = null;
+				try{
+					category = (String) data.getClass().getMethod(categoryMethod).invoke(data);
+				}
+				catch(Exception e){
+					category = (colData.get(groupName).getCustomFunction().apply(data).toString());
+				}
+
+
+				Double value = null;
+				try{
+					value = Double.valueOf(data.getClass().getMethod(valueMethod[t]).invoke(data).toString());
+				}
+				catch (Exception e) {
+					value = Double.valueOf(colData.get(valueKey[t]).getCustomFunction().apply(data).toString());
+				}
+
 				//dataset.addValue(value, groupName, category);
 				categories[i++] = category;
 				values[t][j++] = value;
 			}
 		}
 
+		return this;
+	}
+	public ChartDrawingService addDataReversed(List<?> dataList, String[] valueKey, LinkedHashMap<String, GenericReports.ColumnMetadata> colData) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		categories = valueKey;
+		values = new Double[dataList.size()][valueKey.length];
+		int i = 0;
+		for (Object data: dataList) {
+			for(int t = 0; t < valueKey.length; t++) {
+				Double value = Double.valueOf(colData.get(valueKey[t]).getCustomFunction().apply(data).toString());
+				values[i][t] = value;
+			}
+			i++;
+		}
 		return this;
 	}
 
@@ -267,6 +298,19 @@ public class ChartDrawingService {
 		chartData.setVaryColors(true);
 		XDDFChartData.Series series = chartData.addSeries(cat, val);
 		series.setTitle(categoryLabel, null);
+		if(this.valueFormat != null){
+			XDDFchart.getCTChart().getPlotArea().getValAxArray(0).addNewNumFmt().setSourceLinked(false);
+			XDDFchart.getCTChart().getPlotArea().getValAxArray(0).getNumFmt().setFormatCode(this.valueFormat);
+
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).addNewDLbls().addNewShowVal().setVal(true);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowSerName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowCatName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowPercent().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowLegendKey().setVal(false);
+
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewNumFmt().setSourceLinked(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().getNumFmt().setFormatCode(this.valueFormat);
+		}
 		XDDFchart.plot(chartData);
 
 		XDDFBarChartData bar = (XDDFBarChartData) chartData;
