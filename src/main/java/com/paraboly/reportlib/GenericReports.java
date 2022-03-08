@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.paraboly.reportlib.utils.StyleUtils.*;
 
@@ -536,6 +537,7 @@ public class GenericReports {
 						if (bottomCalculation != null && !bottomCalculation.equals("string:") && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
 							dataCell.setCellValue(bottomCalculation.split(":")[1]);
 						}
+						offsetYCounter++;
 					}
 					if(bottomTitle != null){
 						CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
@@ -544,6 +546,7 @@ public class GenericReports {
 						dataCell.setCellStyle(getBottomTitleCellStyle(sheet,12));
 						dataCell.setCellValue(bottomTitle);
 						bottomTitle = null;
+						offsetYCounter++;
 					}
 					if(!isNumber && !dataCell.getStringCellValue().isEmpty()){
 						reformatCell(dataCell, columnSize);
@@ -825,8 +828,8 @@ public class GenericReports {
 			ChartDrawingService drawer = null;
 			try {
 
-				int defaultOffsetY = (columnDefinitionList.get(0).getStartOffsetY() + columnDefinitionList.get(0).getData().size() + 5);
-				startOffsetY = defaultOffsetY + 26 * chartOrder;
+				int defaultOffsetY = columnDefinitionList.get(0).offsetYCounter + 1;
+				startOffsetY = defaultOffsetY + 21 * chartOrder;
 
 				XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
 				XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, startOffsetY, 7, startOffsetY + 20);
