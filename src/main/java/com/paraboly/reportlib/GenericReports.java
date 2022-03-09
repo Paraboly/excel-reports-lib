@@ -91,6 +91,7 @@ public class GenericReports {
 		private String[] valueKey;
 		private boolean isReversed;
 		private String valueFormat;
+		private String barDirection;
 	}
 
 	public static class Builder {
@@ -851,7 +852,7 @@ public class GenericReports {
 				chart.setTitleText(chartProps.getTitle());
 				chart.setTitleOverlay(false);
 
-				drawer = new ChartDrawingService(chartProps.getTitle(), chartProps.getGroupLabel(), chartProps.getValueLabel(), chart, chartProps.getValueFormat());
+				drawer = new ChartDrawingService(chartProps.getTitle(), chartProps.getGroupLabel(), chartProps.getValueLabel(), chart, chartProps.getValueFormat(), chartProps.getBarDirection());
 
 				if(!chartProps.isReversed()){
 					drawer.addData(

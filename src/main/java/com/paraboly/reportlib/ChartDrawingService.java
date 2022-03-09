@@ -83,6 +83,7 @@ public class ChartDrawingService {
 	private XDDFChart XDDFchart;
 	private String title, categoryLabel;
 	private String[]  valueLabel;
+	private String barDirection;
 	private JFreeChart chart;
 	private byte[][] colors =  new byte[][] {
 				new byte[]{(byte)78, (byte)127, (byte)187},
@@ -114,13 +115,14 @@ public class ChartDrawingService {
 	private Integer height = 480;
 	private Integer width = 640;
 
-	public ChartDrawingService(String title, String categoryLabel, String[] valueLabel, XDDFChart XDDFchart, String valueFormat){
+	public ChartDrawingService(String title, String categoryLabel, String[] valueLabel, XDDFChart XDDFchart, String valueFormat, String barDirection){
 		dataset = new DefaultCategoryDataset();
 		this.title = title;
 		this.categoryLabel = categoryLabel;
 		this.valueLabel = valueLabel;
 		this.XDDFchart = XDDFchart;
 		this.valueFormat = valueFormat;
+		this.barDirection = barDirection;
 	}
 
 	public ChartDrawingService addData(List<?> dataList, String categoryMethod, String[] valueMethod, String groupName, String[] valueKey, LinkedHashMap<String, GenericReports.ColumnMetadata> colData) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -318,7 +320,11 @@ public class ChartDrawingService {
 		XDDFchart.plot(chartData);
 
 		XDDFBarChartData bar = (XDDFBarChartData) chartData;
-		bar.setBarDirection(BarDirection.COL);
+		if(barDirection != null && barDirection.equals("BAR"))
+			bar.setBarDirection(BarDirection.BAR);
+		else{
+			bar.setBarDirection(BarDirection.COL);
+		}
 	}
 
 	private void drawCombinedBarChartWithXDDF() {
