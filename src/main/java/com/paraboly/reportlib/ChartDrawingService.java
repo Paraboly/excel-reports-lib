@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -185,6 +186,9 @@ public class ChartDrawingService {
 				break;
 			case "pie":
 				drawPieChartWithXDDF();
+				break;
+			case "stacked3DBarChart":
+				drawStacked3DBarChartWithXDDF();
 				break;
 			default:
 				break;
@@ -479,6 +483,69 @@ public class ChartDrawingService {
 
 		bar = (XDDFBarChartData) barChartDataNegative;
 		bar.setBarDirection(BarDirection.COL);
+	}
+
+	private void drawStacked3DBarChartWithXDDF() {
+
+		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
+		legend.setPosition(LegendPosition.TOP);
+
+		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
+		bottomAxis.setTitle(categoryLabel);
+
+		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
+		//leftAxis.setTitle(valueLabel[0]);
+		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+
+		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
+
+		ArrayList<XDDFNumericalDataSource<Double>> vals = new ArrayList<>();
+		for(int i = 0; i < values.length; i++){
+			vals.add(XDDFDataSourcesFactory.fromArray(values[i]));
+		}
+
+		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR3D, bottomAxis, leftAxis);
+		chartData.setVaryColors(true);
+
+		ArrayList<XDDFChartData.Series> series = new ArrayList<>();
+		for(XDDFNumericalDataSource<Double> val : vals)
+			series.add(chartData.addSeries(cat, val));
+
+		for(int i = 0; i < valueLabel.length; i++)
+			series.get(i).setTitle(valueLabel[i], null);
+
+
+		XDDFchart.getCTChart().getPlotArea().getValAxArray(0).addNewNumFmt().setSourceLinked(false);
+		XDDFchart.getCTChart().getPlotArea().getValAxArray(0).getNumFmt().setFormatCode("#,##0.00\\ TL");
+
+		CTChart ctChart = XDDFchart.getCTChart();
+		CTBoolean ctboolean = CTBoolean.Factory.newInstance();
+		ctboolean.setVal(true);
+		ctChart.getPlotArea().getBar3DChartArray(0).addNewDLbls().setShowVal(ctboolean);
+		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowLeaderLines(ctboolean);
+		ctboolean.setVal(false);
+		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowSerName(ctboolean);
+		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowPercent(ctboolean);
+		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowLegendKey(ctboolean);
+		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowCatName(ctboolean);
+
+		for(int i = 0; i < series.size(); i++){
+			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).addNewDLbls().addNewShowVal().setVal(true);
+			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowLeaderLines().setVal(true);
+			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowSerName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowCatName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowPercent().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowLegendKey().setVal(false);
+
+			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewNumFmt().setSourceLinked(false);
+			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().getNumFmt().setFormatCode("#,##0.00\\ TL");
+		}
+
+		XDDFchart.plot(chartData);
+
+		XDDFBar3DChartData bar = (XDDFBar3DChartData) chartData;
+		bar.setBarDirection(BarDirection.COL);
+		bar.setBarGrouping(BarGrouping.STACKED);
 	}
 
 	public JFreeChart getChart() { return this.chart; }
