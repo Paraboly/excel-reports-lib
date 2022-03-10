@@ -2,6 +2,7 @@ package com.paraboly.reportlib;
 
 import lombok.SneakyThrows;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.ExtendedColor;
 import org.apache.poi.util.Units;
 import org.apache.poi.xddf.usermodel.*;
 import org.apache.poi.xddf.usermodel.chart.*;
@@ -26,6 +27,7 @@ import org.openxmlformats.schemas.drawingml.x2006.chart.CTBoolean;
 import org.openxmlformats.schemas.drawingml.x2006.main.*;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
 import org.openxmlformats.schemas.officeDocument.x2006.sharedTypes.STXstring;
+import org.openxmlformats.schemas.drawingml.x2006.chart.STTickLblPos;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
@@ -385,35 +387,13 @@ public class ChartDrawingService {
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
 
-		Double[] positives = new Double[values[0].length];
-		Double[] negatives = new Double[values[0].length];
-
-		for(int i = 0; i < values[0].length; i++){
-			if(values[0][i] < 0){
-				negatives[i] = values[0][i];
-
-			}
-			else if(values[0][i] > 0){
-				positives[i] = values[0][i];
-			}
-		}
-
-		XDDFNumericalDataSource<Double> firstValPositive = XDDFDataSourcesFactory.fromArray(positives);
-		XDDFNumericalDataSource<Double> firstValNegative = XDDFDataSourcesFactory.fromArray(negatives);
-		//val1.setFormatCode("%");
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
 		XDDFNumericalDataSource<Double> secondVal = XDDFDataSourcesFactory.fromArray(values[1]);
-		//val2.setFormatCode("%");
 		XDDFNumericalDataSource<Double> thirdVal = XDDFDataSourcesFactory.fromArray(values[2]);
-
 
 		XDDFChartData barChartDataPositive = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 		barChartDataPositive.setVaryColors(true);
-		XDDFChartData.Series positiveSeries = barChartDataPositive.addSeries(cat, firstValPositive);
-
-
-		XDDFChartData barChartDataNegative = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
-		barChartDataNegative.setVaryColors(true);
-		XDDFChartData.Series negativeSeries = barChartDataNegative.addSeries(cat, firstValNegative);
+		XDDFChartData.Series positiveSeries = barChartDataPositive.addSeries(cat, val);
 
 		XDDFChartData lineChartDataFirst = XDDFchart.createData(ChartTypes.LINE, bottomAxis, leftAxis);
 		XDDFLineChartData.Series firstLineSeries = (XDDFLineChartData.Series) lineChartDataFirst.addSeries(cat, secondVal);
@@ -424,12 +404,10 @@ public class ChartDrawingService {
 		secondLineSeries.setMarkerStyle(MarkerStyle.NONE);
 
 		positiveSeries.setTitle(valueLabel[0], null);
-		negativeSeries.setTitle(valueLabel[0], null);
 		firstLineSeries.setTitle(valueLabel[1], null);
 		secondLineSeries.setTitle(valueLabel[2], null);
 
 		XDDFchart.plot(barChartDataPositive);
-		XDDFchart.plot(barChartDataNegative);
 		XDDFchart.plot(lineChartDataFirst);
 		XDDFchart.plot(lineChartDataSecond);
 
@@ -438,14 +416,6 @@ public class ChartDrawingService {
 		valAx.addNewNumFmt().setFormatCode("0%");
 
 		ctChart.getPlotArea().getBarChartArray(0).getSerArray(0).addNewInvertIfNegative().setVal(false);
-		ctChart.getPlotArea().getBarChartArray(1).getSerArray(0).addNewInvertIfNegative().setVal(false);
-
-		ctChart.getPlotArea().getBarChartArray(0).getSerArray(0).addNewSpPr()
-				.addNewSolidFill().addNewSrgbClr().setVal(new byte[]{(byte)0,(byte)255,(byte)0});
-
-		ctChart.getPlotArea().getBarChartArray(1).getSerArray(0).addNewSpPr()
-				.addNewSolidFill().addNewSrgbClr().setVal(new byte[]{(byte)255,(byte)0,(byte)0});
-
 
 		for(int i = 0; i < 2; i++){
 			if (ctChart.getPlotArea().getLineChartArray(i).getSerArray(0).getSpPr() == null)
@@ -484,11 +454,19 @@ public class ChartDrawingService {
 		ctChart.getPlotArea().getValAxArray(0).getNumFmt().setSourceLinked(false);
 		ctChart.getPlotArea().getValAxArray(0).getNumFmt().setFormatCode("%0.0");
 
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).addNewDLbls().addNewShowVal().setVal(true);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowLeaderLines().setVal(true);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowSerName().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowCatName().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowPercent().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowLegendKey().setVal(false);
+
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewNumFmt().setSourceLinked(false);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().getNumFmt().setFormatCode("%0.0");
+
 		XDDFBarChartData bar = (XDDFBarChartData) barChartDataPositive;
 		bar.setBarDirection(BarDirection.COL);
 
-		bar = (XDDFBarChartData) barChartDataNegative;
-		bar.setBarDirection(BarDirection.COL);
 	}
 
 	private void drawStacked3DBarChartWithXDDF() {
