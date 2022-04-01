@@ -220,8 +220,10 @@ public class ChartDrawingService {
 				drawStacked3DBarChartWithXDDF();
 				break;
 			case "combinedBarForCustom":
-				drawCombinedBarChartForDiscountWithXDDF1();
+				drawCustomChartWithXDDF();
 				break;
+			case "combinedBarAndLine":
+				drawCombinedBarAndLineChartWithXDDF();
 			default:
 				break;
 		}
@@ -399,6 +401,102 @@ public class ChartDrawingService {
 		XDDFBarChartData bar = (XDDFBarChartData) chartData;
 		bar.setBarDirection(BarDirection.COL);
 	}
+	private void drawCombinedBarAndLineChartWithXDDF() {
+
+		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
+		legend.setPosition(LegendPosition.TOP);
+
+		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
+		bottomAxis.setTitle(categoryLabel);
+
+		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
+		leftAxis.setTitle(valueLabel[0] + " & " + valueLabel[1]);
+
+		XDDFValueAxis rightAxis = XDDFchart.createValueAxis(AxisPosition.RIGHT);
+		rightAxis.setTitle(valueLabel[2]);
+
+		leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
+		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+		rightAxis.setCrosses(AxisCrosses.MAX);
+		rightAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+
+		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
+		XDDFNumericalDataSource<Double> val1 = XDDFDataSourcesFactory.fromArray(values[0]);
+		XDDFNumericalDataSource<Double> val2 = XDDFDataSourcesFactory.fromArray(values[1]);
+		XDDFNumericalDataSource<Double> val3 = XDDFDataSourcesFactory.fromArray(values[2]);
+
+		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
+		XDDFChartData lineChartData = XDDFchart.createData(ChartTypes.LINE, bottomAxis, rightAxis);
+		chartData.setVaryColors(true);
+		XDDFChartData.Series series1 = chartData.addSeries(cat, val1);
+		XDDFChartData.Series series2 = chartData.addSeries(cat, val2);
+		XDDFLineChartData.Series lineSeries = (XDDFLineChartData.Series) lineChartData.addSeries(cat, val3);
+
+		lineSeries.setMarkerStyle(MarkerStyle.NONE);
+
+		series1.setTitle(valueLabel[0], null);
+		series2.setTitle(valueLabel[1], null);
+		lineSeries.setTitle(valueLabel[2], null);
+
+		XDDFchart.plot(lineChartData);
+
+		CTChart ctChart = XDDFchart.getCTChart();
+		CTValAx valAx = ctChart.getPlotArea().getValAxArray(0); // get left axis
+		valAx.addNewNumFmt().setFormatCode("#,##0.00\\ TL");
+
+
+		if (ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr() == null)
+			ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).addNewSpPr();
+
+		if (ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn() == null)
+			ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().addNewLn();
+
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0)
+				.getSpPr().getLn().setW(Units.pixelToEMU(3));
+
+		if (ctChart.getPlotArea().getLineChartArray(0).getSerArray(0)
+				.getSpPr().getLn().getSolidFill() == null)
+			ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn().addNewSolidFill();
+
+		if (ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn()
+				.getSolidFill().getSrgbClr() == null)
+			ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn()
+					.getSolidFill().addNewSrgbClr();
+
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn()
+				.addNewPrstDash().setVal(STPresetLineDashVal.SOLID);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).addNewSmooth().setVal(false);
+
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0)
+				.getSpPr().getLn().getSolidFill().getSrgbClr().setVal(new byte[]{(byte)0,(byte)0,(byte)255});
+
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).addNewDLbls().addNewShowVal().setVal(true);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowLeaderLines().setVal(true);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowSerName().setVal(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowCatName().setVal(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowPercent().setVal(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowLegendKey().setVal(false);
+
+		ctChart.getPlotArea().getValAxArray(0).getNumFmt().setSourceLinked(false);
+		ctChart.getPlotArea().getValAxArray(0).getNumFmt().setFormatCode("#,##0.00\\ TL");
+
+		CTBoolean ctboolean = CTBoolean.Factory.newInstance();
+
+		ctboolean.setVal(true);
+		ctChart.getPlotArea().getBarChartArray(0).addNewDLbls().setShowBubbleSize(ctboolean);
+		ctboolean.setVal(false);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowVal(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowSerName(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowPercent(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowLegendKey(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowCatName(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowLeaderLines(ctboolean);
+
+		XDDFchart.plot(chartData);
+
+		XDDFBarChartData bar = (XDDFBarChartData) chartData;
+		bar.setBarDirection(BarDirection.COL);
+	}
 
 	private void drawCombinedBarChartForDiscountWithXDDF() {
 
@@ -497,7 +595,7 @@ public class ChartDrawingService {
 
 	}
 
-	private void drawCombinedBarChartForDiscountWithXDDF1() {
+	private void drawCustomChartWithXDDF() {
 		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
 		legend.setPosition(LegendPosition.TOP);
 
@@ -510,8 +608,10 @@ public class ChartDrawingService {
 		XDDFValueAxis rightAxis = XDDFchart.createValueAxis(AxisPosition.RIGHT);
 		rightAxis.setTitle("İHALE TUTARI (x1.000.000 TL)");
 
+		leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
 		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 		rightAxis.setCrosses(AxisCrosses.MAX);
+		rightAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
 
