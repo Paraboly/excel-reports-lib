@@ -175,6 +175,31 @@ public class ChartDrawingService {
 		}
 		return this;
 	}
+	public ChartDrawingService addDataCustom(List<?> dataList, String[] valueKey, LinkedHashMap<String, GenericReports.ColumnMetadata> colData)throws NoSuchMethodException, InvocationTargetException, IllegalAccessException{
+
+		categories = new String[valueKey.length / 2];
+		for(int i = 0; i < categories.length; i++){
+			categories[i] = valueKey[i];
+		}
+		Double[] sumCountList = new Double[valueKey.length / 2];
+		Double[] sumMoneyList = new Double[valueKey.length / 2];
+		for(int t = 0; t < valueKey.length / 2; t++) {
+			for (Object data: dataList) {
+				Double value = Double.valueOf(colData.get(valueKey[t]).getCustomFunction().apply(data).toString());
+				sumCountList[t] = sumCountList[t] == null ? value : sumCountList[t] + value;
+			}
+		}
+		for(int t = valueKey.length / 2; t < valueKey.length; t++) {
+			for (Object data: dataList) {
+				Double value = Double.valueOf(colData.get(valueKey[t]).getCustomFunction().apply(data).toString());
+				sumMoneyList[t - valueKey.length / 2] = sumMoneyList[t - valueKey.length / 2] == null ? value : sumMoneyList[t - valueKey.length / 2] + value;
+			}
+		}
+		values = new Double[2][valueKey.length / 2];
+		values[0] = sumCountList;
+		values[1] = sumMoneyList;
+		return this;
+	}
 
 	@SneakyThrows
 	public void draw(String chartType) {
@@ -193,6 +218,9 @@ public class ChartDrawingService {
 				break;
 			case "stacked3DBarChart":
 				drawStacked3DBarChartWithXDDF();
+				break;
+			case "combinedBarForCustom":
+				drawCombinedBarChartForDiscountWithXDDF1();
 				break;
 			default:
 				break;
@@ -382,7 +410,7 @@ public class ChartDrawingService {
 		//bottomAxis.setVisible(false);
 
 		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
-		leftAxis.setTitle(valueLabel[1]);
+		leftAxis.setTitle("TENZİLAT");
 		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
@@ -467,6 +495,89 @@ public class ChartDrawingService {
 		XDDFBarChartData bar = (XDDFBarChartData) barChartDataPositive;
 		bar.setBarDirection(BarDirection.COL);
 
+	}
+
+	private void drawCombinedBarChartForDiscountWithXDDF1() {
+		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
+		legend.setPosition(LegendPosition.TOP);
+
+		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
+		bottomAxis.setTitle("YIL");
+
+		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
+		leftAxis.setTitle("DOSYA SAYISI");
+
+		XDDFValueAxis rightAxis = XDDFchart.createValueAxis(AxisPosition.RIGHT);
+		rightAxis.setTitle("İHALE TUTARI (x1.000.000 TL)");
+
+		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+		rightAxis.setCrosses(AxisCrosses.MAX);
+
+		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
+
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
+		XDDFNumericalDataSource<Double> secondVal = XDDFDataSourcesFactory.fromArray(values[1]);
+
+		XDDFChartData lineChartData = XDDFchart.createData(ChartTypes.LINE, bottomAxis, leftAxis);
+		XDDFLineChartData.Series lineSeries = (XDDFLineChartData.Series) lineChartData.addSeries(cat, val);
+		lineSeries.setMarkerStyle(MarkerStyle.NONE);
+
+		XDDFChartData barChartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, rightAxis);
+		barChartData.setVaryColors(true);
+		XDDFChartData.Series series = barChartData.addSeries(cat, secondVal);
+
+		series.setTitle("İHALE TUTARI (x1.000.000 TL)", null);
+		lineSeries.setTitle("DOSYA SAYISI", null);
+
+		XDDFchart.plot(barChartData);
+		XDDFchart.plot(lineChartData);
+
+		CTChart ctChart = XDDFchart.getCTChart();
+		CTValAx valAx = ctChart.getPlotArea().getValAxArray(1); // get right axis
+		valAx.addNewNumFmt().setFormatCode("#,##0.00\\ TL");
+
+		for(int i = 0; i < 1; i++){
+			if (ctChart.getPlotArea().getLineChartArray(i).getSerArray(0).getSpPr() == null)
+				ctChart.getPlotArea().getLineChartArray(i).getSerArray(0).addNewSpPr();
+
+			if (ctChart.getPlotArea().getLineChartArray(i).getSerArray(0).getSpPr().getLn() == null)
+				ctChart.getPlotArea().getLineChartArray(i).getSerArray(0).getSpPr().addNewLn();
+
+			ctChart.getPlotArea().getLineChartArray(i).getSerArray(0)
+					.getSpPr().getLn().setW(Units.pixelToEMU(3));
+
+			if (ctChart.getPlotArea().getLineChartArray(i).getSerArray(0)
+					.getSpPr().getLn().getSolidFill() == null)
+				ctChart.getPlotArea().getLineChartArray(i).getSerArray(0).getSpPr().getLn().addNewSolidFill();
+
+			if (ctChart.getPlotArea().getLineChartArray(i).getSerArray(0).getSpPr().getLn()
+					.getSolidFill().getSrgbClr() == null)
+				ctChart.getPlotArea().getLineChartArray(i).getSerArray(0).getSpPr().getLn()
+						.getSolidFill().addNewSrgbClr();
+		}
+
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn()
+				.addNewPrstDash().setVal(STPresetLineDashVal.SOLID);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).addNewSmooth().setVal(false);
+
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0)
+				.getSpPr().getLn().getSolidFill().getSrgbClr().setVal(new byte[]{(byte)0,(byte)0,(byte)255});
+
+		ctChart.getPlotArea().getValAxArray(1).getNumFmt().setSourceLinked(false); // right axis
+		ctChart.getPlotArea().getValAxArray(1).getNumFmt().setFormatCode("#,##0.00\\ TL"); // right axis
+
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).addNewDLbls().addNewShowVal().setVal(true);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowLeaderLines().setVal(true);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowSerName().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowCatName().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowPercent().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewShowLegendKey().setVal(false);
+
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().addNewNumFmt().setSourceLinked(false);
+		XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(0).getDLbls().getNumFmt().setFormatCode("#,##0.00\\ TL");
+
+		XDDFBarChartData bar = (XDDFBarChartData) barChartData;
+		bar.setBarDirection(BarDirection.COL);
 	}
 
 	private void drawStacked3DBarChartWithXDDF() {

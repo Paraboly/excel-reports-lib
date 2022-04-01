@@ -90,6 +90,7 @@ public class GenericReports {
 		private String groupKey;
 		private String[] valueKey;
 		private boolean isReversed;
+		private boolean isCustom;
 		private String valueFormat;
 		private String barDirection;
 	}
@@ -854,14 +855,19 @@ public class GenericReports {
 
 				drawer = new ChartDrawingService(chartProps.getTitle(), chartProps.getGroupLabel(), chartProps.getValueLabel(), chart, chartProps.getValueFormat(), chartProps.getBarDirection());
 
-				if(!chartProps.isReversed()){
-					drawer.addData(
-									data, chartProps.getGroupFunctionName(), chartProps.getValueFunctionName(),chartProps.getGroupLabel(), chartProps.getValueKey(), reportData.getColumnToMetadataMapping())
+				if(chartProps.isCustom() && chartProps.isReversed()){
+					drawer.addDataCustom(
+									data, chartProps.getValueKey(), reportData.getColumnToMetadataMapping())
+							.draw(chartProps.getType());
+				}
+				else if(chartProps.isReversed()){
+					drawer.addDataReversed(
+									data, chartProps.getValueKey(), reportData.getColumnToMetadataMapping())
 							.draw(chartProps.getType());
 				}
 				else{
-					drawer.addDataReversed(
-									data, chartProps.getValueKey(), reportData.getColumnToMetadataMapping())
+					drawer.addData(
+									data, chartProps.getGroupFunctionName(), chartProps.getValueFunctionName(),chartProps.getGroupLabel(), chartProps.getValueKey(), reportData.getColumnToMetadataMapping())
 							.draw(chartProps.getType());
 				}
 
