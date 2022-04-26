@@ -45,14 +45,14 @@ public class GenericReports {
 		private int fontSize=12;
 		private int headerFontSize=12;
 		private int titleFontSize=14;
-		private Integer year;
+		private List<Integer> yearList;
 		private Integer headerStartOffsetX;
 		private Integer headerEndOffsetX;
 		private Integer headerStartOffsetY;
 		private Integer headerEndOffsetY;
-		private String biddingDepartment;
-		private String biddingType;
-		private String biddingProcedure;
+		private List<String> biddingDepartmentList;
+		private List<String> biddingTypeList;
+		private List<String> biddingProcedureList;
 		private LinkedList<ChartProps> chartPropsLinkedList;
 		private ChartProps chartProps;
 		private LinkedList<String> addToTotalSumList;
@@ -589,10 +589,10 @@ public class GenericReports {
 						CreationHelper createHelper = sheet.getWorkbook().getCreationHelper();
 						Hyperlink link = createHelper.createHyperlink(HyperlinkType.DOCUMENT);
 						if(data.get(i).toString().equals(" YILI TENZİLAT")){
-							link.setAddress("' " + this.reportData.getYear() + " YILI TENZİLAT'!A1");
+							link.setAddress("' " + this.reportData.getYearList() + " YILI TENZİLAT'!A1");
 						}
 						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
-							link.setAddress("' " + (this.reportData.getYear() - 1) + " YILI TENZİLAT'!A1");
+							link.setAddress("' " + (this.reportData.getYearList().get(0) - 1) + " YILI TENZİLAT'!A1");
 						}
 						else{
 							link.setAddress("'" + data.get(i).toString() + "'!A1");
@@ -602,10 +602,13 @@ public class GenericReports {
 					}
 					else{
 						if(data.get(i).toString().equals(" YILI TENZİLAT")){
-							dataCell.setCellValue(" " + this.reportData.getYear() + " YILI TENZİLAT");
+							dataCell.setCellValue(" " + this.reportData.getYearList() + " YILI TENZİLAT");
 						}
 						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
-							dataCell.setCellValue(" " + (this.reportData.getYear() - 1) + " YILI TENZİLAT");
+							dataCell.setCellValue(" " + (this.reportData.getYearList().get(0) - 1) + " YILI TENZİLAT");
+						}
+						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
+							dataCell.setCellValue(" " + (this.reportData.getYearList().get(0) - 1) + " YILI TENZİLAT");
 						}
 						else{
 							dataCell.setCellValue(data.get(i).toString());
@@ -703,17 +706,64 @@ public class GenericReports {
 				rowSize = reportData.headerEndOffsetY - reportData.headerStartOffsetY + 1;
 				String title;
 				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
-					title = reportData.year.toString()+" YILI" + "\n"
+					StringBuilder years = new StringBuilder();
+					if(reportData.yearList != null) {
+						for (Integer year : reportData.yearList) {
+							years.append(year);
+							years.append("-");
+						}
+						if(years.length() > 0)
+							years.deleteCharAt(years.length() - 1);
+					}
+
+					StringBuilder biddingDepartments = new StringBuilder();
+					if(reportData.biddingDepartmentList != null){
+						for(String department : reportData.biddingDepartmentList){
+							if(!department.equals("Veri Girilmemiştir")){
+								biddingDepartments.append(department.toUpperCase(Locale.ROOT));
+								biddingDepartments.append("-");
+							}
+						}
+						if(biddingDepartments.length() > 0)
+							biddingDepartments.deleteCharAt(biddingDepartments.length() - 1);
+					}
+
+
+					StringBuilder biddingTypes = new StringBuilder();
+					if(reportData.biddingTypeList != null){
+						for(String biddingType : reportData.biddingTypeList){
+							if(!biddingType.equals("Veri Girilmemiştir")){
+								biddingTypes.append(biddingType.toUpperCase(Locale.ROOT));
+								biddingTypes.append("-");
+							}
+						}
+						if(biddingTypes.length() > 0)
+							biddingTypes.deleteCharAt(biddingTypes.length() - 1);
+					}
+
+
+					StringBuilder biddingProcedures = new StringBuilder();
+					if(reportData.biddingProcedureList != null){
+						for(String biddingProcedure : reportData.biddingProcedureList){
+							if(!biddingProcedure.equals("Veri Girilmemiştir")){
+								biddingProcedures.append(biddingProcedure.toUpperCase(Locale.ROOT));
+								biddingProcedures.append("-");
+							}
+						}
+						if(biddingProcedures.length() > 0)
+							biddingProcedures.deleteCharAt(biddingProcedures.length() - 1);
+					}
+					title = (reportData.yearList.size() == 1 ? (years + " YILI") : (years + " YILLARI")) + "\n"
 						+ header + "\n"
-							+ (reportData.biddingDepartment.equals("Veri Girilmemiştir")? "": reportData.biddingDepartment.toUpperCase(Locale.ROOT)+", ")
-						+ (reportData.biddingType.equals("Veri Girilmemiştir") ? "": reportData.biddingType.toUpperCase(Locale.ROOT)+", ")
-						+ (reportData.biddingProcedure.equals("Veri Girilmemiştir") ? "": reportData.biddingProcedure.toUpperCase(Locale.ROOT));
+							+ (reportData.biddingDepartmentList == null || reportData.biddingDepartmentList.size() == 0 ? "" :  (biddingDepartments + ", "))
+						+ (reportData.biddingTypeList == null || reportData.biddingTypeList.size() == 0 ? "" : (biddingTypes + ", "))
+						+ (reportData.biddingProcedureList == null || reportData.biddingProcedureList.size() == 0 ? "" : (biddingProcedures));
 				}else if(reportData.reportType.equals(" BÖLGEYE GÖRE DAĞILIM")
 
 							|| reportData.reportType.equals(" İHALE TÜRÜNE GÖRE DAĞILIM")
 							|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIM \n(YAPIM ve YAPIM(BAKIM) İHALELERİ)")
 				){
-					title = reportData.year.toString()+ " YILI ÖN MALİ KONTROLÜ YAPILAN İHALELER\n"+
+					title = reportData.yearList.get(0).toString()+ " YILI ÖN MALİ KONTROLÜ YAPILAN İHALELER\n"+
 								reportData.reportType;
 				}else if(reportData.reportType.equals(" GENEL MÜDÜRLÜK İHALELERİ")
 							|| reportData.reportType.equals(" BÖLGE MÜDÜRLÜK İHALELERİ")
@@ -724,29 +774,29 @@ public class GenericReports {
 							|| reportData.reportType.equals(" DANIŞMANLIK İŞİ İHALELERİ")
 							|| reportData.reportType.equals(" HİZMET İŞİ İHALELERİ")
 				){
-					title = reportData.year.toString()+ " YILI ÖN MALİ KONTROL\n"+
+					title = reportData.yearList.get(0).toString()+ " YILI ÖN MALİ KONTROL\n"+
 							reportData.reportType;
 				}
 				else if(reportData.reportType.equals(" YAPIM İHALE USULE GÖRE DAĞILIMI")
 						|| reportData.reportType.equals(" YAPIM İHALE USULE GÖRE TUTAR DAĞILIMI")
 				){
-					title = reportData.year.toString() + " YILI" + reportData.reportType;
+					title = reportData.yearList.get(0).toString() + " YILI" + reportData.reportType;
 				}else if(reportData.reportType.equals(" YAPIM İHALE USULE GÖRE TENZİLAT DAĞILIMI")){
-					title = reportData.year.toString() + " YILI" + reportData.reportType;
+					title = reportData.yearList.get(0).toString() + " YILI" + reportData.reportType;
 				}
-				else if(reportData.reportType.equals(" "+ reportData.year+ " YILI TENZİLAT")){
+				else if(reportData.reportType.equals(" "+ reportData.yearList.get(0)+ " YILI TENZİLAT")){
 					title = reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
 				}
 				else if(reportData.reportType.equals(" TENZİLAT TABLO \n( SON 2 YIL )")){
-					Integer previousYear = reportData.year-1;
-					title = (previousYear)+"-"+(reportData.year)+" YILI" + reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
+					Integer previousYear = reportData.yearList.get(0)-1;
+					title = (previousYear)+"-"+(reportData.yearList.get(0))+" YILI" + reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
 				}else if(reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI") ||
 						reportData.reportType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI") ||
 						reportData.reportType.equals(" İHALE USULÜNE GÖRE TENZİLAT DAĞILIMI")){
-					title = reportData.year.toString() + " YILI YAPIM İHALE TUTARININ\n"+reportData.reportType;
+					title = reportData.yearList.get(0).toString() + " YILI YAPIM İHALE TUTARININ\n"+reportData.reportType;
 				}
 				else if(reportData.reportType.equals(" İÇİNDEKİLER")){
-					title = reportData.year + " YILI ÖN MALİ KONTROL RAPOR\n" + reportData.reportType;
+					title = reportData.yearList.get(0) + " YILI ÖN MALİ KONTROL RAPOR\n" + reportData.reportType;
 				}
 				else if(reportData.reportType.equals(" YILLARA GÖRE TENZİLAT BÖLGELER")){
 					title ="YILLARA GÖRE TENZİLAT TABLOSU\nBÖLGELER";
