@@ -589,7 +589,7 @@ public class GenericReports {
 						CreationHelper createHelper = sheet.getWorkbook().getCreationHelper();
 						Hyperlink link = createHelper.createHyperlink(HyperlinkType.DOCUMENT);
 						if(data.get(i).toString().equals(" YILI TENZİLAT")){
-							link.setAddress("' " + this.reportData.getYearList() + " YILI TENZİLAT'!A1");
+							link.setAddress("' " + this.reportData.getYearList().get(0) + " YILI TENZİLAT'!A1");
 						}
 						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
 							link.setAddress("' " + (this.reportData.getYearList().get(0) - 1) + " YILI TENZİLAT'!A1");
@@ -602,10 +602,7 @@ public class GenericReports {
 					}
 					else{
 						if(data.get(i).toString().equals(" YILI TENZİLAT")){
-							dataCell.setCellValue(" " + this.reportData.getYearList() + " YILI TENZİLAT");
-						}
-						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
-							dataCell.setCellValue(" " + (this.reportData.getYearList().get(0) - 1) + " YILI TENZİLAT");
+							dataCell.setCellValue(" " + this.reportData.getYearList().get(0) + " YILI TENZİLAT");
 						}
 						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
 							dataCell.setCellValue(" " + (this.reportData.getYearList().get(0) - 1) + " YILI TENZİLAT");
@@ -753,6 +750,7 @@ public class GenericReports {
 						if(biddingProcedures.length() > 0)
 							biddingProcedures.deleteCharAt(biddingProcedures.length() - 1);
 					}
+					assert reportData.yearList != null;
 					title = (reportData.yearList.size() == 1 ? (years + " YILI") : (years + " YILLARI")) + "\n"
 						+ header + "\n"
 							+ (reportData.biddingDepartmentList == null || reportData.biddingDepartmentList.size() == 0 ? "" :  (biddingDepartments + ", "))
@@ -784,7 +782,7 @@ public class GenericReports {
 				}else if(reportData.reportType.equals(" YAPIM İHALE USULE GÖRE TENZİLAT DAĞILIMI")){
 					title = reportData.yearList.get(0).toString() + " YILI" + reportData.reportType;
 				}
-				else if(reportData.reportType.equals(" "+ reportData.yearList.get(0)+ " YILI TENZİLAT")){
+				else if(reportData.yearList != null && reportData.reportType.equals(" "+ reportData.yearList.get(0)+ " YILI TENZİLAT")){
 					title = reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
 				}
 				else if(reportData.reportType.equals(" TENZİLAT TABLO \n( SON 2 YIL )")){
