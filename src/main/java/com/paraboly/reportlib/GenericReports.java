@@ -808,7 +808,7 @@ public class GenericReports {
 				offsetXCounter = startOffsetX;
 				startOffsetY = reportData.headerEndOffsetY;
 
-				if(reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ KONTROL")){
+				if(reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ KONTROL") || reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ K.(GÜNCEL)")){
 					Cell subTitleRowCell1 = mergeCellAndSetBorder(sheet,startOffsetY+1, startOffsetY+1, reportData.headerStartOffsetX+2, reportData.yearCount+1);
 					subTitleRowCell1.setCellValue("DOSYA SAYISI");
 
