@@ -888,6 +888,7 @@ public class GenericReports {
 		}
 
 		public void addChart(XSSFSheet sheet, List data, ChartProps chartProps, int chartOrder) {
+			if(data == null || data.size() == 0) return;
 			ChartDrawingService drawer = null;
 			try {
 

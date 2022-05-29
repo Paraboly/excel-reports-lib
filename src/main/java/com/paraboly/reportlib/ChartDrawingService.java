@@ -402,43 +402,43 @@ public class ChartDrawingService {
 		bar.setBarDirection(BarDirection.COL);
 	}
 	private void drawCombinedBarAndLineChartWithXDDF() {
+		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
+		XDDFNumericalDataSource<Double> val1 = XDDFDataSourcesFactory.fromArray(values[0]);
+		XDDFNumericalDataSource<Double> val2 = XDDFDataSourcesFactory.fromArray(values[1]);
+		XDDFNumericalDataSource<Double> val3 = XDDFDataSourcesFactory.fromArray(values[2]);
 
 		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
 		legend.setPosition(LegendPosition.TOP);
 
 		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
 		bottomAxis.setTitle(categoryLabel);
-
 		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
 		leftAxis.setTitle(valueLabel[0] + " & " + valueLabel[1]);
-
-		XDDFValueAxis rightAxis = XDDFchart.createValueAxis(AxisPosition.RIGHT);
-		rightAxis.setTitle(valueLabel[2]);
-
 		leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
-		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
-		rightAxis.setCrosses(AxisCrosses.MAX);
-		rightAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
-
-		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
-		XDDFNumericalDataSource<Double> val1 = XDDFDataSourcesFactory.fromArray(values[0]);
-		XDDFNumericalDataSource<Double> val2 = XDDFDataSourcesFactory.fromArray(values[1]);
-		XDDFNumericalDataSource<Double> val3 = XDDFDataSourcesFactory.fromArray(values[2]);
-
 		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
-		XDDFChartData lineChartData = XDDFchart.createData(ChartTypes.LINE, bottomAxis, rightAxis);
-		chartData.setVaryColors(true);
 		XDDFChartData.Series series1 = chartData.addSeries(cat, val1);
 		XDDFChartData.Series series2 = chartData.addSeries(cat, val2);
-		XDDFLineChartData.Series lineSeries = (XDDFLineChartData.Series) lineChartData.addSeries(cat, val3);
+		XDDFchart.plot(chartData);
 
+		bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
+		bottomAxis.setVisible(false);
+		XDDFValueAxis rightAxis = XDDFchart.createValueAxis(AxisPosition.RIGHT);
+		rightAxis.setTitle(valueLabel[2]);
+		rightAxis.setCrosses(AxisCrosses.MAX);
+		bottomAxis.crossAxis(rightAxis);
+		rightAxis.crossAxis(bottomAxis);
+		XDDFChartData lineChartData = XDDFchart.createData(ChartTypes.LINE, bottomAxis, rightAxis);
+		chartData.setVaryColors(true);
+		XDDFLineChartData.Series lineSeries = (XDDFLineChartData.Series) lineChartData.addSeries(cat, val3);
+		XDDFchart.plot(lineChartData);
 		lineSeries.setMarkerStyle(MarkerStyle.NONE);
+		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+		//rightAxis.setCrosses(AxisCrosses.MAX);
+		rightAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 
 		series1.setTitle(valueLabel[0], null);
 		series2.setTitle(valueLabel[1], null);
 		lineSeries.setTitle(valueLabel[2], null);
-
-		XDDFchart.plot(lineChartData);
 
 		CTChart ctChart = XDDFchart.getCTChart();
 		CTValAx valAx = ctChart.getPlotArea().getValAxArray(0); // get left axis
@@ -491,9 +491,6 @@ public class ChartDrawingService {
 		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowLegendKey(ctboolean);
 		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowCatName(ctboolean);
 		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowLeaderLines(ctboolean);
-
-		XDDFchart.plot(chartData);
-
 		XDDFBarChartData bar = (XDDFBarChartData) chartData;
 		bar.setBarDirection(BarDirection.COL);
 	}
