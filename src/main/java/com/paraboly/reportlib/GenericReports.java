@@ -96,9 +96,9 @@ public class GenericReports {
 	}
 
 	public static class Builder {
-		private static List<ReportData> reportDataList;
-		private static String filename;
-		private static XSSFWorkbook wb;
+		private List<ReportData> reportDataList;
+		private String filename;
+		private XSSFWorkbook wb;
 
 		public Builder(String filename) {
 			this.filename = filename;
@@ -111,7 +111,7 @@ public class GenericReports {
 			return this;
 		}
 
-		public static XSSFWorkbook create() {
+		public XSSFWorkbook create() {
 			for (ReportData reportData: reportDataList) {
 				XSSFSheet sheet = wb.createSheet(reportData.getReportType());
 
@@ -140,7 +140,7 @@ public class GenericReports {
 			return wb;
 		}
 
-		private static ChartProps fillChartProps(ChartProps chartProps, LinkedHashMap<String, ColumnMetadata> columnMetadata) {
+		private ChartProps fillChartProps(ChartProps chartProps, LinkedHashMap<String, ColumnMetadata> columnMetadata) {
 			chartProps.setGroupFunctionName(columnMetadata.get(chartProps.getGroupKey()).getFunctionName());
 			chartProps.setGroupLabel(chartProps.getGroupKey());
 
@@ -153,7 +153,7 @@ public class GenericReports {
 			chartProps.setValueLabel(chartProps.getValueKey());
 			return chartProps;
 		}
-		private static ChartProps fillChartPropsReversed(ChartProps chartProps, LinkedHashMap<String, ColumnMetadata> columnMetadata) {
+		private ChartProps fillChartPropsReversed(ChartProps chartProps, LinkedHashMap<String, ColumnMetadata> columnMetadata) {
 			if(chartProps.getGroupLabel() == null)
 				chartProps.setGroupLabel(chartProps.getGroupKey());
 
@@ -161,7 +161,7 @@ public class GenericReports {
 				chartProps.setValueLabel(chartProps.getValueKey());
 			return chartProps;
 		}
-		private static CellStyle getCellStyle(XSSFSheet sheet, String type, ColumnMetadata columnMetadata, int size){
+		private CellStyle getCellStyle(XSSFSheet sheet, String type, ColumnMetadata columnMetadata, int size){
 			CellStyle dataStyle = getBorderedBoldCellStyle(sheet, size);
 			CellStyle headerStyle = getHeaderRowStyle(sheet, size);
 			CellStyle currStyle = getBorderedBoldCurrencyCellStyle(sheet,size);
@@ -233,7 +233,7 @@ public class GenericReports {
 		}
 
 
-		private static TableMapperExtended getReportTable(ReportData reportData, XSSFSheet sheet) {
+		private TableMapperExtended getReportTable(ReportData reportData, XSSFSheet sheet) {
 			LinkedHashMap<String, ColumnDefinition> map = new LinkedHashMap<>();
 			CellStyle headerStyle = getHeaderRowStyle(sheet, reportData.headerFontSize);
 			reportData.getColumnToMetadataMapping().forEach((columnName, columnMetadata) -> {
@@ -281,7 +281,7 @@ public class GenericReports {
 			return new TableMapperExtended(reportData.getReportType(), new ArrayList<>(map.values()), reportData);
 		}
 
-		private static Object invokeCustomMethod(Object data, Function function) {
+		private Object invokeCustomMethod(Object data, Function function) {
 			return function.apply(data);
 		}
 	}
@@ -357,7 +357,7 @@ public class GenericReports {
 			return offsetYCounter;
 		}
 
-		public static void reformatCell(XSSFCell dataCell, int columnSize){
+		public void reformatCell(XSSFCell dataCell, int columnSize){
 			String fontName = dataCell.getCellStyle().getFont().getFontName();
 			int fontSize = dataCell.getCellStyle().getFont().getFontHeightInPoints();
 			String value = dataCell.getStringCellValue();
