@@ -593,41 +593,39 @@ public class ChartDrawingService {
 	}
 
 	private void drawCustomChartWithXDDF() {
+		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
+		XDDFNumericalDataSource<Double> secondVal = XDDFDataSourcesFactory.fromArray(values[1]);
+
 		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
 		legend.setPosition(LegendPosition.TOP);
 
 		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
 		bottomAxis.setTitle("YIL");
-
 		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
 		leftAxis.setTitle("DOSYA SAYISI");
-
-		XDDFValueAxis rightAxis = XDDFchart.createValueAxis(AxisPosition.RIGHT);
-		rightAxis.setTitle("İHALE TUTARI (x1.000.000 TL)");
-
 		leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
-		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
-		rightAxis.setCrosses(AxisCrosses.MAX);
-		rightAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
-
-		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
-
-		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
-		XDDFNumericalDataSource<Double> secondVal = XDDFDataSourcesFactory.fromArray(values[1]);
-
 		XDDFChartData lineChartData = XDDFchart.createData(ChartTypes.LINE, bottomAxis, leftAxis);
 		XDDFLineChartData.Series lineSeries = (XDDFLineChartData.Series) lineChartData.addSeries(cat, val);
-		lineSeries.setMarkerStyle(MarkerStyle.NONE);
+		XDDFchart.plot(lineChartData);
 
+		bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
+		bottomAxis.setVisible(false);
+		XDDFValueAxis rightAxis = XDDFchart.createValueAxis(AxisPosition.RIGHT);
+		rightAxis.setTitle("İHALE TUTARI (x1.000.000 TL)");
+		rightAxis.setCrosses(AxisCrosses.MAX);
+		bottomAxis.crossAxis(rightAxis);
+		rightAxis.crossAxis(bottomAxis);
 		XDDFChartData barChartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, rightAxis);
 		barChartData.setVaryColors(true);
 		XDDFChartData.Series series = barChartData.addSeries(cat, secondVal);
+		XDDFchart.plot(barChartData);
+		lineSeries.setMarkerStyle(MarkerStyle.NONE);
+		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+		rightAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 
 		series.setTitle("İHALE TUTARI (x1.000.000 TL)", null);
 		lineSeries.setTitle("DOSYA SAYISI", null);
-
-		XDDFchart.plot(barChartData);
-		XDDFchart.plot(lineChartData);
 
 		CTChart ctChart = XDDFchart.getCTChart();
 		CTValAx valAx = ctChart.getPlotArea().getValAxArray(1); // get right axis
