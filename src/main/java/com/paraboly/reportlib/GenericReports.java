@@ -453,16 +453,28 @@ public class GenericReports {
 				if(dataRow == null) {
 					dataRow = sheet.createRow(i + offsetYCounter);
 				}
-				if(reportData.reportType.equals(" İÇİNDEKİLER") && i == 17){
-					CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter + 1, startOffsetX, startOffsetX + columnSize - 1);
-					sheet.addMergedRegion(region);
-					RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
-					RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
-					RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
-					RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
-					offsetYCounter++;
+				boolean notDeflator = true;
+				if(i < data.size() && reportData.reportType.equals(" İÇİNDEKİLER")){
+					Object row = reportData.getElementList().get(i);
+					String reportName = null;
+					try{
+						reportName = (String)(row.getClass().getMethod(reportData.getColumnToMetadataMapping().get("Rapor Adı").getFunctionName()).invoke(row)); // only for those have function name
+					}
+					catch(NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassCastException e){
+						e.printStackTrace();
+					}
+					if(reportName != null && reportName.equals(" YILLARA GÖRE ÖN MALİ K.(GÜNCEL)")){
+						CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter + 1, startOffsetX, startOffsetX + columnSize - 1);
+						sheet.addMergedRegion(region);
+						RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
+						RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
+						RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
+						RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
+						offsetYCounter++;
+						notDeflator = false;
+					}
 				}
-				else if(columnSize > 1) {
+				if(columnSize > 1 && notDeflator) {
 					if (i != data.size() || !disableBottomRow){
 						CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
 						sheet.addMergedRegion(region);
