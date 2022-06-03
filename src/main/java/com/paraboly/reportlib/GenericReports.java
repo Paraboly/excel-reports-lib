@@ -119,8 +119,8 @@ public class GenericReports {
 					sheet.setZoom(60);
 				}
 				TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
-				tableMapperExtended.setStartOffsetX(0);
-				tableMapperExtended.setStartOffsetY(0);
+				tableMapperExtended.setStartOffsetX(reportData.headerStartOffsetX);
+				tableMapperExtended.setStartOffsetY(reportData.headerStartOffsetY);
 				tableMapperExtended.write(sheet, reportData);
 				if (reportData.chartPropsLinkedList != null) {
 					AtomicInteger i = new AtomicInteger(0);
@@ -129,7 +129,7 @@ public class GenericReports {
 							fillChartProps(chartProps, reportData.getColumnToMetadataMapping());
 						else
 							fillChartPropsReversed(chartProps, reportData.getColumnToMetadataMapping());
-						tableMapperExtended.addChart(sheet, reportData.getElementList(), chartProps, i.getAndIncrement());
+						tableMapperExtended.addChart(sheet, reportData.getElementList(), chartProps, i.getAndIncrement(), reportData.chartPropsLinkedList.size());
 					});
 				}
 				sheet.getPrintSetup().setPaperSize(PrintSetup.A4_PAPERSIZE);
@@ -453,7 +453,16 @@ public class GenericReports {
 				if(dataRow == null) {
 					dataRow = sheet.createRow(i + offsetYCounter);
 				}
-				if(columnSize > 1) {
+				if(reportData.reportType.equals(" İÇİNDEKİLER") && i == 17){
+					CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter + 1, startOffsetX, startOffsetX + columnSize - 1);
+					sheet.addMergedRegion(region);
+					RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
+					RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
+					RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
+					RegionUtil.setBorderRight(BorderStyle.THIN, region, sheet);
+					offsetYCounter++;
+				}
+				else if(columnSize > 1) {
 					if (i != data.size() || !disableBottomRow){
 						CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
 						sheet.addMergedRegion(region);
@@ -601,7 +610,15 @@ public class GenericReports {
 						dataCell.setHyperlink(link);
 					}
 					else{
-						if(data.get(i).toString().equals(" YILI TENZİLAT")){
+						if(data.get(i).equals(" YILLARA GÖRE ÖN MALİ K.(GÜNCEL)")){
+							assert reportData.yearList != null;
+							int previousYear = reportData.yearList.get(0) - 1;
+							int currentYear = reportData.yearList.get(0);
+							int beginningYear = currentYear - reportData.yearCount + 1;
+							dataCell.setCellValue(" YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + previousYear
+									+ "YILLARI, " + currentYear + " YILI FİYATLARIYLA )");
+						}
+						else if(data.get(i).toString().equals(" YILI TENZİLAT")){
 							dataCell.setCellValue(" " + this.reportData.getYearList().get(0) + " YILI TENZİLAT");
 						}
 						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
@@ -799,6 +816,13 @@ public class GenericReports {
 				else if(reportData.reportType.equals(" YILLARA GÖRE TENZİLAT BÖLGELER")){
 					title ="YILLARA GÖRE TENZİLAT TABLOSU\nBÖLGELER";
 				}
+				else if(reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ K.(GÜNCEL)")){
+					assert reportData.yearList != null;
+					int previousYear = reportData.yearList.get(0) - 1;
+					int currentYear = reportData.yearList.get(0);
+					int beginningYear = currentYear - reportData.yearCount + 1;
+					title ="YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + previousYear + "YILLARI, " + currentYear + " YILI FİYATLARIYLA )";
+				}
 				else{
 					title=header;
 				}
@@ -887,16 +911,40 @@ public class GenericReports {
 			sumCell.setCellStyle(getHeaderRowStyle(sheet, reportData.headerFontSize));
 		}
 
-		public void addChart(XSSFSheet sheet, List data, ChartProps chartProps, int chartOrder) {
+		public void addChart(XSSFSheet sheet, List data, ChartProps chartProps, int chartOrder, int size) {
 			if(data == null || data.size() == 0) return;
 			ChartDrawingService drawer = null;
 			try {
 
 				int defaultOffsetY = columnDefinitionList.get(0).offsetYCounter + 1;
 				startOffsetY = defaultOffsetY + 21 * chartOrder;
+				int col2 = 7;
+				int col1 = 0;
+				if(reportData.reportType.equals(" İHALE TÜRÜNE GÖRE DAĞILIM")
+						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIM \n(YAPIM ve YAPIM(BAKIM) İHALELERİ)")
+						|| reportData.reportType.equals(" GENEL MÜDÜRLÜK & BÖLGE MÜDÜRLÜK İHALELERİ")
+				){
+					startOffsetY = columnDefinitionList.get(0).offsetYCounter + 1;
+					col1 = chartOrder * (offsetXCounter / size);
+					col2 = col1 + (offsetXCounter / size);
+				}
 
+				else if(reportData.yearList != null && reportData.reportType.equals(" "+ reportData.yearList.get(0)+ " YILI TENZİLAT")
+						|| reportData.yearList != null && reportData.reportType.equals(" "+ (reportData.yearList.get(0) - 1) + " YILI TENZİLAT")
+						|| reportData.reportType.equals(" TENZİLAT TABLO \n( SON 2 YIL )")){
+					col2 = 8;
+				}
+				else if(reportData.reportType.equals(" BÖLGEYE GÖRE DAĞILIM")
+						|| reportData.reportType.equals(" MAL ALIM İŞİ İHALELERİ")
+						|| reportData.reportType.equals(" YAPIM(BAKIM) İŞİ İHALELERİ")
+						|| reportData.reportType.equals(" YAPIM İŞİ İHALELERİ")
+						|| reportData.reportType.equals(" DANIŞMANLIK İŞİ İHALELERİ")
+						|| reportData.reportType.equals(" HİZMET İŞİ İHALELERİ")
+						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI")){
+					col2 = offsetXCounter;
+				}
 				XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
-				XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, startOffsetY, 7, startOffsetY + 20);
+				XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, col1, startOffsetY, col2, startOffsetY + 20);
 				anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_AND_RESIZE);
 				XDDFChart chart = drawing.createChart(anchor);
 				chart.setTitleText(chartProps.getTitle());
