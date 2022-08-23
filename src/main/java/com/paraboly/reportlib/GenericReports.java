@@ -636,6 +636,9 @@ public class GenericReports {
 						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
 							dataCell.setCellValue(" " + (this.reportData.getYearList().get(0) - 1) + " YILI TENZİLAT");
 						}
+						else if(data.get(i).toString().equals(" DURUM")){
+							dataCell.setCellValue(" ÖN MALİ KONTROL " + data.get(i).toString());
+						}
 						else{
 							dataCell.setCellValue(data.get(i).toString());
 						}
@@ -792,7 +795,12 @@ public class GenericReports {
 				){
 					title = reportData.yearList.get(0).toString()+ " YILI ÖN MALİ KONTROLÜ YAPILAN İHALELER\n"+
 								reportData.reportType;
-				}else if(reportData.reportType.equals(" GENEL MÜDÜRLÜK İHALELERİ")
+				}
+				else if(reportData.reportType.equals(" DURUM")){
+					title = reportData.yearList.get(0).toString()+ " YILI ÖN MALİ KONTROL\n"+
+							reportData.reportType;
+				}
+				else if(reportData.reportType.equals(" GENEL MÜDÜRLÜK İHALELERİ")
 							|| reportData.reportType.equals(" BÖLGE MÜDÜRLÜK İHALELERİ")
 							|| reportData.reportType.equals(" GENEL MÜDÜRLÜK & BÖLGE MÜDÜRLÜK İHALELERİ")
 							|| reportData.reportType.equals(" MAL ALIM İŞİ İHALELERİ")
@@ -935,6 +943,7 @@ public class GenericReports {
 				if(reportData.reportType.equals(" İHALE TÜRÜNE GÖRE DAĞILIM")
 						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIM \n(YAPIM ve YAPIM(BAKIM) İHALELERİ)")
 						|| reportData.reportType.equals(" GENEL MÜDÜRLÜK & BÖLGE MÜDÜRLÜK İHALELERİ")
+						|| reportData.reportType.equals(" DURUM")
 				){
 					startOffsetY = columnDefinitionList.get(0).offsetYCounter + 1;
 					col1 = chartOrder * (offsetXCounter / size);
