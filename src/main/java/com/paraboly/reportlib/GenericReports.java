@@ -642,11 +642,10 @@ public class GenericReports {
 					else{
 						if(data.get(i).equals(" YILLARA GÖRE ÖN MALİ K.(GÜNCEL)")){
 							assert reportData.yearList != null;
-							int previousYear = reportData.yearList.get(0) - 1;
 							int currentYear = reportData.yearList.get(0);
 							int beginningYear = currentYear - reportData.yearCount + 1;
-							dataCell.setCellValue(" YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + previousYear
-									+ "YILLARI, " + currentYear + " YILI FİYATLARIYLA )");
+							dataCell.setCellValue(" YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + currentYear
+									+ "YILLARI, " +  Calendar.getInstance().get(Calendar.YEAR) + " YILI FİYATLARIYLA )");
 						}
 						else if(data.get(i).toString().equals(" YILI TENZİLAT")){
 							dataCell.setCellValue(" " + this.reportData.getYearList().get(0) + " YILI TENZİLAT");
@@ -862,10 +861,10 @@ public class GenericReports {
 				}
 				else if(reportData.reportType.equals(" YILLARA GÖRE ÖN MALİ K.(GÜNCEL)")){
 					assert reportData.yearList != null;
-					int previousYear = reportData.yearList.get(0) - 1;
 					int currentYear = reportData.yearList.get(0);
 					int beginningYear = currentYear - reportData.yearCount + 1;
-					title ="YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + previousYear + "YILLARI, " + currentYear + " YILI FİYATLARIYLA )";
+					title ="YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + currentYear + "YILLARI, "
+							+ Calendar.getInstance().get(Calendar.YEAR) + " YILI FİYATLARIYLA )";
 				}
 				else if(reportData.reportType.equals("CUMHURBAŞKANLIĞI")){
 					title = "ULAŞTIRMA ve ALTYAPI BAKANLIĞI\n(CUMHURBAŞKANLIĞINDA BEKLEYEN)\nYATIRIM PROGRAMI REVİZYON TALEPLERİ TAKİP TABLOSU";
