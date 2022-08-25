@@ -113,7 +113,10 @@ public class GenericReports {
 
 		public XSSFWorkbook create() {
 			for (ReportData reportData: reportDataList) {
-				XSSFSheet sheet = wb.createSheet(reportData.getReportType());
+				String sheetTitle = reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") ?
+						" LİSTE" : reportData.getReportType();
+
+				XSSFSheet sheet = wb.createSheet(sheetTitle);
 
 				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 					sheet.setZoom(60);
@@ -615,6 +618,9 @@ public class GenericReports {
 						else if(data.get(i).toString().equals("  YILI TENZİLAT")){
 							link.setAddress("' " + (this.reportData.getYearList().get(0) - 1) + " YILI TENZİLAT'!A1");
 						}
+						else if(data.get(i).toString().equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+							link.setAddress("' LİSTE'!A1");
+						}
 						else{
 							link.setAddress("'" + data.get(i).toString() + "'!A1");
 						}
@@ -638,6 +644,9 @@ public class GenericReports {
 						}
 						else if(data.get(i).toString().equals(" DURUM")){
 							dataCell.setCellValue(" ÖN MALİ KONTROL " + data.get(i).toString());
+						}
+						else if(data.get(i).toString().equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+							dataCell.setCellValue("ÖN MALİ KONTROL LİSTE");
 						}
 						else{
 							dataCell.setCellValue(data.get(i).toString());
