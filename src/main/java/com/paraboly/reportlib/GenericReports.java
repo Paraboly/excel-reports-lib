@@ -1,5 +1,6 @@
 package com.paraboly.reportlib;
 
+import com.paraboly.reportlib.utils.StyleUtils;
 import com.sun.corba.se.spi.orbutil.threadpool.Work;
 import lombok.Data;
 import org.apache.poi.common.usermodel.HyperlinkType;
@@ -61,6 +62,7 @@ public class GenericReports {
 		private String rowColorFunction;
 		private Integer yearCount;
 		private Boolean mergeTwoRow = false;
+		private int zoomLevel = 100;
 	}
 
 	@Data
@@ -114,13 +116,15 @@ public class GenericReports {
 		public XSSFWorkbook create() {
 			for (ReportData reportData: reportDataList) {
 				XSSFSheet sheet = wb.createSheet(reportData.getReportType());
-
-				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
-					sheet.setZoom(60);
-				}
 				TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
-				tableMapperExtended.setStartOffsetX(reportData.headerStartOffsetX);
-				tableMapperExtended.setStartOffsetY(reportData.headerStartOffsetY);
+				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
+						|| reportData.reportType.equals("CUMHURBAŞKANLIĞI")
+						|| reportData.reportType.equals("BAKAN OLURLARI")
+				){
+					sheet.setZoom(reportData.zoomLevel);
+					tableMapperExtended.setStartOffsetX(reportData.headerStartOffsetX);
+					tableMapperExtended.setStartOffsetY(reportData.headerStartOffsetY);
+				}
 				tableMapperExtended.write(sheet, reportData);
 				if (reportData.chartPropsLinkedList != null) {
 					AtomicInteger i = new AtomicInteger(0);
@@ -407,11 +411,8 @@ public class GenericReports {
 				height = 7.0;
 			}
 
-
 			columnHeaderRow.setHeight((short)height);
 			columnHeaderRow.setHeightInPoints((4* columnHeaderRow.getHeight()));
-
-
 
 			if(columnSize >= 1 && reportData.mergeTwoRow==true) {
 				CellRangeAddress region = new CellRangeAddress(offsetYCounter, offsetYCounter+1, startOffsetX, startOffsetX + columnSize - 1);
@@ -441,12 +442,21 @@ public class GenericReports {
 				}
 				offsetYCounter += 1;
 			}
+			Cell cell = columnHeaderRow.createCell(startOffsetX);
 			if(!(isMerged && column.equals("İHALE TÜRÜ"))) { // control
-				Cell cell = columnHeaderRow.createCell(startOffsetX);
 				cell.setCellValue(column);
 				if (headerStyle != null)
 					cell.setCellStyle(headerStyle);
 			}
+			if(this.reportData.reportType.equals("CUMHURBAŞKANLIĞI") || this.reportData.reportType.equals("BAKAN OLURLARI")){
+				XSSFCellStyle xssfCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
+				xssfCellStyle.cloneStyleFrom(headerStyle);
+				xssfCellStyle.setFillForegroundColor(new XSSFColor((java.awt.Color.decode("#5b9bd5"))));
+				xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				xssfCellStyle.setFont(getHeaderFont(sheet,12));
+				cell.setCellStyle(xssfCellStyle);
+			}
+
 
 			for (int i = 0; i <= data.size(); i++) {
 				XSSFRow dataRow = sheet.getRow(i + offsetYCounter);
@@ -728,7 +738,10 @@ public class GenericReports {
 
 			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
 					|| reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")
-					|| reportData.reportType.substring(0,1).equals(" ")){
+					|| reportData.reportType.substring(0,1).equals(" ")
+					|| reportData.reportType.equals("CUMHURBAŞKANLIĞI")
+					|| reportData.reportType.equals("BAKAN OLURLARI")
+			){
 
 				Cell headerCell = mergeCellAndSetBorder(sheet,reportData.headerStartOffsetY, reportData.headerEndOffsetY, reportData.headerStartOffsetX, reportData.headerEndOffsetX);
 
@@ -842,6 +855,12 @@ public class GenericReports {
 					int currentYear = reportData.yearList.get(0);
 					int beginningYear = currentYear - reportData.yearCount + 1;
 					title ="YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + previousYear + "YILLARI, " + currentYear + " YILI FİYATLARIYLA )";
+				}
+				else if(reportData.reportType.equals("CUMHURBAŞKANLIĞI")){
+					title = "ULAŞTIRMA ve ALTYAPI BAKANLIĞI\n(CUMHURBAŞKANLIĞINDA BEKLEYEN)\nYATIRIM PROGRAMI REVİZYON TALEPLERİ TAKİP TABLOSU";
+				}
+				else if(reportData.reportType.equals("BAKAN OLURLARI")){
+					title = "ULAŞTIRMA ve ALTYAPI BAKANLIĞINA\nBAKAN OLURU ALINMASI İÇİN İLETİLEN TALEPLER";
 				}
 				else{
 					title=header;
