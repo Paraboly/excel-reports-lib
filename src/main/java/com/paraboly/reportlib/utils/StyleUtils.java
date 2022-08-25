@@ -25,7 +25,7 @@ public class StyleUtils {
 		return font;
 	}
 
-	private static Font getHeaderFont(XSSFSheet sheet, int size) {
+	public static Font getHeaderFont(XSSFSheet sheet, int size) {
 		XSSFFont font = (XSSFFont) sheet.getWorkbook().createFont();
 		font.setBold(true);
 		font.setFontHeightInPoints((short) size);
