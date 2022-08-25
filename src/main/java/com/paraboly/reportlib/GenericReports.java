@@ -655,7 +655,7 @@ public class GenericReports {
 							dataCell.setCellValue(" " + (this.reportData.getYearList().get(0) - 1) + " YILI TENZİLAT");
 						}
 						else if(data.get(i).toString().equals(" DURUM")){
-							dataCell.setCellValue(" ÖN MALİ KONTROL " + data.get(i).toString());
+							dataCell.setCellValue(" ÖN MALİ KONTROL" + data.get(i).toString());
 						}
 						else if(data.get(i).toString().equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 							dataCell.setCellValue("ÖN MALİ KONTROL LİSTE");
