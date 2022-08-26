@@ -125,6 +125,8 @@ public class GenericReports {
 				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
 						|| reportData.reportType.equals("CUMHURBAŞKANLIĞI")
 						|| reportData.reportType.equals("BAKAN OLURLARI")
+						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI")
+						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE TENZİLAT DAĞILIMI")
 				){
 					sheet.setZoom(reportData.zoomLevel);
 					tableMapperExtended.setStartOffsetX(reportData.headerStartOffsetX);
