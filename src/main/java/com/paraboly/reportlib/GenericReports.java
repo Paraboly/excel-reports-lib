@@ -972,6 +972,8 @@ public class GenericReports {
 				if(reportData.reportType.equals(" İHALE TÜRÜNE GÖRE DAĞILIM")
 						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIM \n(YAPIM ve YAPIM(BAKIM) İHALELERİ)")
 						|| reportData.reportType.equals(" GENEL MÜDÜRLÜK & BÖLGE MÜDÜRLÜK İHALELERİ")
+						|| reportData.reportType.equals(" BÖLGE MÜDÜRLÜK İHALELERİ")
+						|| reportData.reportType.equals(" GENEL MÜDÜRLÜK İHALELERİ")
 						|| reportData.reportType.equals(" DURUM")
 				){
 					startOffsetY = columnDefinitionList.get(0).offsetYCounter + 1;
