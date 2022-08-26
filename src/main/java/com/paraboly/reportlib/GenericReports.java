@@ -998,7 +998,11 @@ public class GenericReports {
 					col2 = offsetXCounter;
 				}
 				XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
-				XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, col1, startOffsetY, col2, startOffsetY + 20);
+				int chartHeight = 20;
+				if(reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI")){
+					chartHeight = 45;
+				}
+				XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, col1, startOffsetY, col2, startOffsetY + chartHeight);
 				anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_AND_RESIZE);
 				XDDFChart chart = drawing.createChart(anchor);
 				chart.setTitleText(chartProps.getTitle());

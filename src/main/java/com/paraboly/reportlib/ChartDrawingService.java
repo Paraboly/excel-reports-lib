@@ -216,8 +216,8 @@ public class ChartDrawingService {
 			case "pie":
 				drawPieChartWithXDDF();
 				break;
-			case "stacked3DBarChart":
-				drawStacked3DBarChartWithXDDF();
+			case "stackedBarChart":
+				drawStackedBarChartWithXDDF();
 				break;
 			case "combinedBarForCustom":
 				drawCustomChartWithXDDF();
@@ -675,17 +675,17 @@ public class ChartDrawingService {
 		bar.setBarDirection(BarDirection.COL);
 	}
 
-	private void drawStacked3DBarChartWithXDDF() {
+	private void drawStackedBarChartWithXDDF() {
 
 		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
 		legend.setPosition(LegendPosition.TOP);
 
-		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
-		bottomAxis.setTitle(categoryLabel);
+		XDDFCategoryAxis leftAxis = XDDFchart.createCategoryAxis(AxisPosition.LEFT);
+		leftAxis.setTitle(categoryLabel);
 
-		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
+		XDDFValueAxis bottomAxis = XDDFchart.createValueAxis(AxisPosition.BOTTOM);
 		//leftAxis.setTitle(valueLabel[0]);
-		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+		bottomAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
 
@@ -694,7 +694,7 @@ public class ChartDrawingService {
 			vals.add(XDDFDataSourcesFactory.fromArray(values[i]));
 		}
 
-		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR3D, bottomAxis, leftAxis);
+		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, leftAxis, bottomAxis);
 		chartData.setVaryColors(true);
 
 		ArrayList<XDDFChartData.Series> series = new ArrayList<>();
@@ -711,31 +711,33 @@ public class ChartDrawingService {
 		CTChart ctChart = XDDFchart.getCTChart();
 		CTBoolean ctboolean = CTBoolean.Factory.newInstance();
 		ctboolean.setVal(true);
-		ctChart.getPlotArea().getBar3DChartArray(0).addNewDLbls().setShowVal(ctboolean);
-		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowLeaderLines(ctboolean);
+
+		ctChart.getPlotArea().getBarChartArray(0).addNewDLbls().setShowVal(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowLeaderLines(ctboolean);
 		ctboolean.setVal(false);
-		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowSerName(ctboolean);
-		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowPercent(ctboolean);
-		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowLegendKey(ctboolean);
-		ctChart.getPlotArea().getBar3DChartArray(0).getDLbls().setShowCatName(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowSerName(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowPercent(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowLegendKey(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowCatName(ctboolean);
 
 		for(int i = 0; i < series.size(); i++){
-			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).addNewDLbls().addNewShowVal().setVal(true);
-			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowLeaderLines().setVal(true);
-			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowSerName().setVal(false);
-			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowCatName().setVal(false);
-			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowPercent().setVal(false);
-			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewShowLegendKey().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).addNewDLbls().addNewShowVal().setVal(true);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowLeaderLines().setVal(true);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowSerName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowCatName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowPercent().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowLegendKey().setVal(false);
 
-			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().addNewNumFmt().setSourceLinked(false);
-			XDDFchart.getCTChart().getPlotArea().getBar3DChartArray(0).getSerArray(i).getDLbls().getNumFmt().setFormatCode("#,##0.00\\ TL");
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewNumFmt().setSourceLinked(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().getNumFmt().setFormatCode("#,##0.00\\ TL");
 		}
 
 		XDDFchart.plot(chartData);
 
-		XDDFBar3DChartData bar = (XDDFBar3DChartData) chartData;
-		bar.setBarDirection(BarDirection.COL);
-		bar.setBarGrouping(BarGrouping.STACKED);
+		XDDFBarChartData bar = (XDDFBarChartData) chartData;
+		bar.setBarDirection(BarDirection.BAR);
+		bar.setBarGrouping(BarGrouping.STANDARD);
+
 	}
 
 	public JFreeChart getChart() { return this.chart; }
