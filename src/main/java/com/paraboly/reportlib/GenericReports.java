@@ -2,6 +2,7 @@ package com.paraboly.reportlib;
 
 import com.paraboly.reportlib.utils.StyleUtils;
 import com.sun.corba.se.spi.orbutil.threadpool.Work;
+import lombok.Builder;
 import lombok.Data;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
@@ -38,6 +39,14 @@ import static com.paraboly.reportlib.utils.StyleUtils.*;
 // build
 
 public class GenericReports {
+
+	@Data
+	public static class SheetData {
+		private String sheetType;
+		private int zoomLevel = 100;
+		private List<ReportData> reportDataList;
+		private int currentY;
+	}
 	@Data
 	public static class ReportData {
 		private List<?> elementList;
@@ -62,7 +71,7 @@ public class GenericReports {
 		private String rowColorFunction;
 		private Integer yearCount;
 		private Boolean mergeTwoRow = false;
-		private int zoomLevel = 100;
+		private SheetData sheetData;
 	}
 
 	@Data
@@ -98,55 +107,67 @@ public class GenericReports {
 	}
 
 	public static class Builder {
-		private List<ReportData> reportDataList;
+		private List<SheetData> sheetDataList;
 		private String filename;
 		private XSSFWorkbook wb;
 
 		public Builder(String filename) {
 			this.filename = filename;
-			reportDataList = new ArrayList<>();
+			sheetDataList = new ArrayList<>();
 			wb = new XSSFWorkbook();
 		}
 
-		public Builder addData(ReportData data) {
-			reportDataList.add(data);
+		public Builder addSheetData(SheetData sheetData) {
+			sheetDataList.add(sheetData);
 			return this;
 		}
 
 		public XSSFWorkbook create() {
-			for (ReportData reportData: reportDataList) {
-				String sheetTitle = reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") ?
-						" LİSTE" : reportData.getReportType();
+			for (SheetData sheetData: sheetDataList){
+				String sheetTitle = sheetData.getSheetType().equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") ?
+						" LİSTE" : sheetData.getSheetType();
 
 				XSSFSheet sheet = wb.createSheet(sheetTitle);
 
-
-				TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
-				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
-						|| reportData.reportType.equals("CUMHURBAŞKANLIĞI")
-						|| reportData.reportType.equals("BAKAN OLURLARI")
-						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI")
-						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE TENZİLAT DAĞILIMI")
-				){
-					sheet.setZoom(reportData.zoomLevel);
-					tableMapperExtended.setStartOffsetX(reportData.headerStartOffsetX);
-					tableMapperExtended.setStartOffsetY(reportData.headerStartOffsetY);
-				}
-				tableMapperExtended.write(sheet, reportData);
-				if (reportData.chartPropsLinkedList != null) {
-					AtomicInteger i = new AtomicInteger(0);
-					reportData.chartPropsLinkedList.forEach(chartProps -> {
-						if(!chartProps.isReversed())
-							fillChartProps(chartProps, reportData.getColumnToMetadataMapping());
-						else
-							fillChartPropsReversed(chartProps, reportData.getColumnToMetadataMapping());
-						tableMapperExtended.addChart(sheet, reportData.getElementList(), chartProps, i.getAndIncrement(), reportData.chartPropsLinkedList.size());
-					});
-				}
 				sheet.getPrintSetup().setPaperSize(PrintSetup.A4_PAPERSIZE);
 				sheet.setFitToPage(true);
 				sheet.getPrintSetup().setFitWidth((short)1);
 				sheet.getPrintSetup().setFitHeight((short)1);
+				sheet.setZoom(sheetData.zoomLevel);
+
+
+				for(ReportData reportData : sheetData.getReportDataList()){
+					reportData.setSheetData(sheetData);
+					reportData.setHeaderStartOffsetY(sheetData.currentY + reportData.getHeaderStartOffsetY());
+					reportData.setHeaderEndOffsetY(sheetData.currentY + reportData.getHeaderEndOffsetY());
+					TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
+					if(sheetData.sheetType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
+							|| sheetData.sheetType.equals("CUMHURBAŞKANLIĞI")
+							|| sheetData.sheetType.equals("BAKAN OLURLARI")
+							|| sheetData.sheetType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI")
+							|| sheetData.sheetType.equals(" İHALE USULÜNE GÖRE TENZİLAT DAĞILIMI")
+							|| sheetData.sheetType.equals(" GN. MD. BİLGİ NOTU")
+							|| (reportData.yearList != null && !reportData.yearList.isEmpty() &&
+								sheetData.sheetType.equals(" "+ reportData.yearList.get(0)+ " YILI TENZİLAT"))
+							|| sheetData.sheetType.equals(" TENZİLAT TABLO \n( SON 2 YIL )")
+					)
+					{
+						tableMapperExtended.setStartOffsetX(reportData.headerStartOffsetX);
+						tableMapperExtended.setStartOffsetY(reportData.headerStartOffsetY);
+					}
+					tableMapperExtended.write(sheet, reportData);
+					if (reportData.chartPropsLinkedList != null) {
+						AtomicInteger i = new AtomicInteger(0);
+						reportData.chartPropsLinkedList.forEach(chartProps -> {
+							if(!chartProps.isReversed())
+								fillChartProps(chartProps, reportData.getColumnToMetadataMapping());
+							else
+								fillChartPropsReversed(chartProps, reportData.getColumnToMetadataMapping());
+							tableMapperExtended.addChart(sheet, reportData.getElementList(), chartProps, i.getAndIncrement(), reportData.chartPropsLinkedList.size());
+						});
+					}
+					sheetData.currentY = tableMapperExtended.columnDefinitionList.get(0).offsetYCounter + 1;
+				}
 			}
 			return wb;
 		}
@@ -455,7 +476,8 @@ public class GenericReports {
 				if (headerStyle != null)
 					cell.setCellStyle(headerStyle);
 			}
-			if(this.reportData.reportType.equals("CUMHURBAŞKANLIĞI") || this.reportData.reportType.equals("BAKAN OLURLARI")){
+			if(this.reportData.reportType.equals("CUMHURBAŞKANLIĞI") || this.reportData.reportType.equals("BAKAN OLURLARI")
+					|| this.reportData.sheetData.sheetType.equals("GN. MD. BİLGİ NOTU")){
 				XSSFCellStyle xssfCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
 				xssfCellStyle.cloneStyleFrom(headerStyle);
 				xssfCellStyle.setFillForegroundColor(new XSSFColor((java.awt.Color.decode("#5b9bd5"))));
@@ -742,9 +764,9 @@ public class GenericReports {
 		}
 
 		public void write(XSSFSheet sheet, ReportData reportData) {
-			Row headerRow = sheet.getRow(startOffsetY);
+			Row headerRow = sheet.getRow(reportData.getHeaderStartOffsetY()); // check here for other reports
 			if(headerRow == null) {
-				headerRow = sheet.createRow(startOffsetY);
+				headerRow = sheet.createRow(reportData.getHeaderStartOffsetY()); // check here for other reports
 			}
 			int rowSize = 1;
 
@@ -753,6 +775,7 @@ public class GenericReports {
 					|| reportData.reportType.substring(0,1).equals(" ")
 					|| reportData.reportType.equals("CUMHURBAŞKANLIĞI")
 					|| reportData.reportType.equals("BAKAN OLURLARI")
+					|| reportData.sheetData.sheetType.equals("GN. MD. BİLGİ NOTU")
 			){
 
 				Cell headerCell = mergeCellAndSetBorder(sheet,reportData.headerStartOffsetY, reportData.headerEndOffsetY, reportData.headerStartOffsetX, reportData.headerEndOffsetX);
