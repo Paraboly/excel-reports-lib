@@ -531,6 +531,14 @@ public class GenericReports {
 						bottomStyle.cloneStyleFrom(columnStyle);
 						bottomStyle.setDataFormat(columnStyle.getDataFormat());
 						dataCell.setCellStyle(bottomStyle);
+						if (bottomCalculation != null &&
+								bottomCalculationText != null &&
+								!bottomCalculationText.isEmpty()) {
+							DataFormat format = sheet.getWorkbook().createDataFormat();
+							bottomStyle.setDataFormat(format.getFormat(bottomCalculationText +
+									"\n" + columnStyle.getDataFormatString()));
+
+						}
 					}
 				} else if(columnStyle != null) {
 					if (reportData.getRowColorFunction() != null) {
@@ -582,30 +590,24 @@ public class GenericReports {
 							}
 						}
 						//build jitpack
-						if (bottomCalculation == null || bottomCalculation.equals("string:"))
+						if (bottomCalculation == null || bottomCalculation.equals("string:")) {
 							dataCell.setCellValue("");
-						else if (bottomCalculation != null && bottomCalculationText.equals("Tenzilat:")){
-							Float d = Float.parseFloat(bottomValue);
-							dataCell.setCellValue(bottomCalculationText+"\n"+ "%"+ df.format(d));
 						}
-
-						else if (bottomCalculation != null && bottomCalculationText.equals("TenzilatForGeneral:")){
-							Float d = Float.parseFloat(bottomValue);
-							dataCell.setCellValue("% "+ df.format(d));
+						else if (bottomValue != null && !bottomValue.isEmpty()) {
+							float d = Float.parseFloat(bottomValue);
+							dataCell.setCellValue(d);
 						}
-
-						else if (bottomCalculation != null && bottomCalculation.equals("avg"))
-							dataCell.setCellValue(bottomCalculationText+"\n"+ sum / data.size());
-						else if (bottomCalculation != null && bottomCalculation.equals("count"))
-							dataCell.setCellValue(bottomCalculationText+"\n"+data.size());
-						else if (bottomCalculation != null && bottomCalculation.equals("sum") && !bottomCalculation.equals("sumPercentage") && !bottomCalculation.equals("sumCount"))
-							dataCell.setCellValue(!bottomCalculationText.equals("") ? bottomCalculationText+"\n"+turkishLirasFormat.format(sum)
-												: turkishLirasFormat.format(sum));
-						else if (bottomCalculation != null && bottomCalculation.equals("sumPercentage")){
+						else if (bottomCalculation.equals("count")) {
+							dataCell.setCellValue(data.size());
+						}
+						else if (bottomCalculation.equals("sum")) {
+							dataCell.setCellValue(sum);
+						}
+						else if (bottomCalculation.equals("sumPercentage")) {
 							dataCell.setCellValue(sum);
 							isNumber = true;
 						}
-						else if (bottomCalculation != null && bottomCalculation.equals("sumCount")){
+						else if (bottomCalculation.equals("sumCount")){
 							dataCell.setCellValue(sum);
 							isNumber = true;
 						}
