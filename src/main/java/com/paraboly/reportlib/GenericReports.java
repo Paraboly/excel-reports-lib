@@ -392,7 +392,10 @@ public class GenericReports {
 		public void reformatCell(XSSFCell dataCell, int columnSize){
 			String fontName = dataCell.getCellStyle().getFont().getFontName();
 			int fontSize = dataCell.getCellStyle().getFont().getFontHeightInPoints();
-			String value = dataCell.getStringCellValue();
+			final DataFormatter dataFormatter = new DataFormatter();
+			final FormulaEvaluator objFormulaEvaluator = new XSSFFormulaEvaluator(dataCell.getSheet().getWorkbook());
+			objFormulaEvaluator.evaluate(dataCell);
+			final String value = dataFormatter.formatCellValue(dataCell, objFormulaEvaluator);
 
 			java.awt.Font font = new java.awt.Font(fontName, 0, fontSize);
 			FontRenderContext frc = new FontRenderContext(new AffineTransform(), true, true);
@@ -526,7 +529,7 @@ public class GenericReports {
 				XSSFCell dataCell = dataRow.createCell(startOffsetX);
 				// style the bottom rows
 				if (data.size() == i) {
-					if (!disableBottomRow){
+					if (!disableBottomRow) {
 						CellStyle bottomStyle = sheet.getWorkbook().createCellStyle();
 						bottomStyle.cloneStyleFrom(columnStyle);
 						bottomStyle.setDataFormat(columnStyle.getDataFormat());
@@ -534,9 +537,14 @@ public class GenericReports {
 						if (bottomCalculation != null &&
 								bottomCalculationText != null &&
 								!bottomCalculationText.isEmpty()) {
+
 							DataFormat format = sheet.getWorkbook().createDataFormat();
-							bottomStyle.setDataFormat(format.getFormat(bottomCalculationText +
-									"\n" + columnStyle.getDataFormatString()));
+							String formatAsString = columnStyle.getDataFormatString();
+							if(bottomCalculation.equals("count")){
+								formatAsString = "#,##0";
+							}
+							bottomStyle.setDataFormat(format.getFormat("\"" + bottomCalculationText +
+									"\n" + "\"" + formatAsString));
 
 						}
 					}
@@ -571,9 +579,6 @@ public class GenericReports {
 				NumberFormat turkishLirasFormat = NumberFormat.getCurrencyInstance(turkey);
 
 				if (data.size() == i) {
-					DecimalFormat df = new DecimalFormat();
-					df.setMaximumFractionDigits(decimalPoint);
-					boolean isNumber = false;
 					if (!disableBottomRow){
 						double sum = 0;
 						int stringsCount = 0;
@@ -600,16 +605,10 @@ public class GenericReports {
 						else if (bottomCalculation.equals("count")) {
 							dataCell.setCellValue(data.size());
 						}
-						else if (bottomCalculation.equals("sum")) {
+						else if (bottomCalculation.equals("sum") ||
+								bottomCalculation.equals("sumPercentage") ||
+								bottomCalculation.equals("sumCount")) {
 							dataCell.setCellValue(sum);
-						}
-						else if (bottomCalculation.equals("sumPercentage")) {
-							dataCell.setCellValue(sum);
-							isNumber = true;
-						}
-						else if (bottomCalculation.equals("sumCount")){
-							dataCell.setCellValue(sum);
-							isNumber = true;
 						}
 						if (bottomCalculation != null && !bottomCalculation.equals("string:") && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
 							dataCell.setCellValue(bottomCalculation.split(":")[1]);
@@ -625,9 +624,9 @@ public class GenericReports {
 						bottomTitle = null;
 						offsetYCounter++;
 					}
-					if(!isNumber && !dataCell.getStringCellValue().isEmpty()){
-						reformatCell(dataCell, columnSize);
-					}
+
+					reformatCell(dataCell, columnSize);
+
 				}
 				else if(data.get(i) instanceof Float) {
 					if(isDiscount != null && isDiscount==true && decimalPoint!= null && decimalPoint==0){
