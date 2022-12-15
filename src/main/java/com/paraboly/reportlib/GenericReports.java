@@ -678,7 +678,7 @@ public class GenericReports {
 							int currentYear = reportData.yearList.get(0);
 							int beginningYear = currentYear - reportData.yearCount + 1;
 							dataCell.setCellValue(" YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + currentYear
-									+ "YILLARI, " +  Calendar.getInstance().get(Calendar.YEAR) + " YILI FİYATLARIYLA )");
+									+ " YILLARI, " +  Calendar.getInstance().get(Calendar.YEAR) + " YILI FİYATLARIYLA )");
 						}
 						else if(data.get(i).toString().equals(" YILI TENZİLAT")){
 							dataCell.setCellValue(" " + this.reportData.getYearList().get(0) + " YILI TENZİLAT");
