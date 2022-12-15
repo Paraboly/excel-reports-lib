@@ -599,8 +599,16 @@ public class GenericReports {
 							dataCell.setCellValue("");
 						}
 						else if (bottomValue != null && !bottomValue.isEmpty()) {
-							float d = Float.parseFloat(bottomValue);
-							dataCell.setCellValue(d);
+							if(bottomCalculationText.equals("Toplam Yaklaşık Maliyet:") ||
+								bottomCalculationText.equals("Toplam İhale Bedeli:")) {
+
+								dataCell.setCellValue(Double.parseDouble(bottomValue));
+							}
+							else{
+								float d = Float.parseFloat(bottomValue);
+								dataCell.setCellValue(d);
+							}
+
 						}
 						else if (bottomCalculation.equals("count")) {
 							dataCell.setCellValue(data.size());
