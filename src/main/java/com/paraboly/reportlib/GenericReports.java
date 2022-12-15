@@ -897,7 +897,7 @@ public class GenericReports {
 					assert reportData.yearList != null;
 					int currentYear = reportData.yearList.get(0);
 					int beginningYear = currentYear - reportData.yearCount + 1;
-					title ="YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + currentYear + "YILLARI, "
+					title ="YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + currentYear + " YILLARI, "
 							+ Calendar.getInstance().get(Calendar.YEAR) + " YILI FİYATLARIYLA )";
 				}
 				else if(reportData.reportType.equals("CUMHURBAŞKANLIĞI")){
