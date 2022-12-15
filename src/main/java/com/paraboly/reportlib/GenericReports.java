@@ -392,7 +392,10 @@ public class GenericReports {
 		public void reformatCell(XSSFCell dataCell, int columnSize){
 			String fontName = dataCell.getCellStyle().getFont().getFontName();
 			int fontSize = dataCell.getCellStyle().getFont().getFontHeightInPoints();
-			String value = dataCell.getStringCellValue();
+			final DataFormatter dataFormatter = new DataFormatter();
+			final FormulaEvaluator objFormulaEvaluator = new XSSFFormulaEvaluator(dataCell.getSheet().getWorkbook());
+			objFormulaEvaluator.evaluate(dataCell);
+			final String value = dataFormatter.formatCellValue(dataCell, objFormulaEvaluator);
 
 			java.awt.Font font = new java.awt.Font(fontName, 0, fontSize);
 			FontRenderContext frc = new FontRenderContext(new AffineTransform(), true, true);
@@ -526,11 +529,24 @@ public class GenericReports {
 				XSSFCell dataCell = dataRow.createCell(startOffsetX);
 				// style the bottom rows
 				if (data.size() == i) {
-					if (!disableBottomRow){
+					if (!disableBottomRow) {
 						CellStyle bottomStyle = sheet.getWorkbook().createCellStyle();
 						bottomStyle.cloneStyleFrom(columnStyle);
 						bottomStyle.setDataFormat(columnStyle.getDataFormat());
 						dataCell.setCellStyle(bottomStyle);
+						if (bottomCalculation != null &&
+								bottomCalculationText != null &&
+								!bottomCalculationText.isEmpty()) {
+
+							DataFormat format = sheet.getWorkbook().createDataFormat();
+							String formatAsString = columnStyle.getDataFormatString();
+							if(bottomCalculation.equals("count")){
+								formatAsString = "#,##0";
+							}
+							bottomStyle.setDataFormat(format.getFormat("\"" + bottomCalculationText +
+									"\n" + "\"" + formatAsString));
+
+						}
 					}
 				} else if(columnStyle != null) {
 					if (reportData.getRowColorFunction() != null) {
@@ -563,9 +579,6 @@ public class GenericReports {
 				NumberFormat turkishLirasFormat = NumberFormat.getCurrencyInstance(turkey);
 
 				if (data.size() == i) {
-					DecimalFormat df = new DecimalFormat();
-					df.setMaximumFractionDigits(decimalPoint);
-					boolean isNumber = false;
 					if (!disableBottomRow){
 						double sum = 0;
 						int stringsCount = 0;
@@ -582,32 +595,28 @@ public class GenericReports {
 							}
 						}
 						//build jitpack
-						if (bottomCalculation == null || bottomCalculation.equals("string:"))
+						if (bottomCalculation == null || bottomCalculation.equals("string:")) {
 							dataCell.setCellValue("");
-						else if (bottomCalculation != null && bottomCalculationText.equals("Tenzilat:")){
-							Float d = Float.parseFloat(bottomValue);
-							dataCell.setCellValue(bottomCalculationText+"\n"+ "%"+ df.format(d));
 						}
+						else if (bottomValue != null && !bottomValue.isEmpty()) {
+							if(bottomCalculationText.equals("Toplam Yaklaşık Maliyet:") ||
+								bottomCalculationText.equals("Toplam İhale Bedeli:")) {
 
-						else if (bottomCalculation != null && bottomCalculationText.equals("TenzilatForGeneral:")){
-							Float d = Float.parseFloat(bottomValue);
-							dataCell.setCellValue("% "+ df.format(d));
-						}
+								dataCell.setCellValue(Double.parseDouble(bottomValue));
+							}
+							else{
+								float d = Float.parseFloat(bottomValue);
+								dataCell.setCellValue(d);
+							}
 
-						else if (bottomCalculation != null && bottomCalculation.equals("avg"))
-							dataCell.setCellValue(bottomCalculationText+"\n"+ sum / data.size());
-						else if (bottomCalculation != null && bottomCalculation.equals("count"))
-							dataCell.setCellValue(bottomCalculationText+"\n"+data.size());
-						else if (bottomCalculation != null && bottomCalculation.equals("sum") && !bottomCalculation.equals("sumPercentage") && !bottomCalculation.equals("sumCount"))
-							dataCell.setCellValue(!bottomCalculationText.equals("") ? bottomCalculationText+"\n"+turkishLirasFormat.format(sum)
-												: turkishLirasFormat.format(sum));
-						else if (bottomCalculation != null && bottomCalculation.equals("sumPercentage")){
-							dataCell.setCellValue(sum);
-							isNumber = true;
 						}
-						else if (bottomCalculation != null && bottomCalculation.equals("sumCount")){
+						else if (bottomCalculation.equals("count")) {
+							dataCell.setCellValue(data.size());
+						}
+						else if (bottomCalculation.equals("sum") ||
+								bottomCalculation.equals("sumPercentage") ||
+								bottomCalculation.equals("sumCount")) {
 							dataCell.setCellValue(sum);
-							isNumber = true;
 						}
 						if (bottomCalculation != null && !bottomCalculation.equals("string:") && bottomCalculation.split(":")[0].equals("string") && stringsCount == data.size()) {
 							dataCell.setCellValue(bottomCalculation.split(":")[1]);
@@ -623,9 +632,9 @@ public class GenericReports {
 						bottomTitle = null;
 						offsetYCounter++;
 					}
-					if(!isNumber && !dataCell.getStringCellValue().isEmpty()){
-						reformatCell(dataCell, columnSize);
-					}
+
+					reformatCell(dataCell, columnSize);
+
 				}
 				else if(data.get(i) instanceof Float) {
 					if(isDiscount != null && isDiscount==true && decimalPoint!= null && decimalPoint==0){
@@ -669,7 +678,7 @@ public class GenericReports {
 							int currentYear = reportData.yearList.get(0);
 							int beginningYear = currentYear - reportData.yearCount + 1;
 							dataCell.setCellValue(" YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + currentYear
-									+ "YILLARI, " +  Calendar.getInstance().get(Calendar.YEAR) + " YILI FİYATLARIYLA )");
+									+ " YILLARI, " +  Calendar.getInstance().get(Calendar.YEAR) + " YILI FİYATLARIYLA )");
 						}
 						else if(data.get(i).toString().equals(" YILI TENZİLAT")){
 							dataCell.setCellValue(" " + this.reportData.getYearList().get(0) + " YILI TENZİLAT");
@@ -888,7 +897,7 @@ public class GenericReports {
 					assert reportData.yearList != null;
 					int currentYear = reportData.yearList.get(0);
 					int beginningYear = currentYear - reportData.yearCount + 1;
-					title ="YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + currentYear + "YILLARI, "
+					title ="YILLARA GÖRE ÖN MALİ KONTROL\n" + "( " + beginningYear + "-" + currentYear + " YILLARI, "
 							+ Calendar.getInstance().get(Calendar.YEAR) + " YILI FİYATLARIYLA )";
 				}
 				else if(reportData.reportType.equals("CUMHURBAŞKANLIĞI")){
