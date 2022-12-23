@@ -35,8 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.paraboly.reportlib.utils.StyleUtils.*;
-
-// build
+//build
 
 public class GenericReports {
 
