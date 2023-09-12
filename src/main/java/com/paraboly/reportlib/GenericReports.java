@@ -414,10 +414,10 @@ public class GenericReports {
 				float length = oneCharLength * multiplier;
 
 				if(length > dataCell.getRow().getHeightInPoints())
-					dataCell.getRow().setHeightInPoints(length * 1.5f);
+					dataCell.getRow().setHeightInPoints(length * 2f);
 			}
 			else if(textheight * 1.5f > dataCell.getRow().getHeightInPoints()) {
-				dataCell.getRow().setHeightInPoints(textheight * 1.5f);
+				dataCell.getRow().setHeightInPoints(textheight * 2f);
 			}
 		}
 		public void write(XSSFSheet sheet, int startOffsetY, int startOffsetX) {
