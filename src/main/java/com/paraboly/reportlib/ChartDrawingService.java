@@ -722,12 +722,12 @@ public class ChartDrawingService {
 		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
 		legend.setPosition(LegendPosition.TOP);
 
-		XDDFCategoryAxis leftAxis = XDDFchart.createCategoryAxis(AxisPosition.LEFT);
-		leftAxis.setTitle(categoryLabel);
+		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
+		bottomAxis.setTitle(categoryLabel);
 
-		XDDFValueAxis bottomAxis = XDDFchart.createValueAxis(AxisPosition.BOTTOM);
+		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
 		//leftAxis.setTitle(valueLabel[0]);
-		bottomAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
 
@@ -736,7 +736,7 @@ public class ChartDrawingService {
 			vals.add(XDDFDataSourcesFactory.fromArray(values[i]));
 		}
 
-		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, leftAxis, bottomAxis);
+		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 		chartData.setVaryColors(true);
 
 		ArrayList<XDDFChartData.Series> series = new ArrayList<>();
@@ -763,7 +763,7 @@ public class ChartDrawingService {
 		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowCatName(ctboolean);
 
 		for(int i = 0; i < series.size(); i++){
-			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).addNewDLbls().addNewShowVal().setVal(true);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).addNewDLbls().addNewShowVal().setVal(false);
 			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowLeaderLines().setVal(true);
 			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowSerName().setVal(false);
 			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowCatName().setVal(false);
@@ -777,7 +777,7 @@ public class ChartDrawingService {
 		XDDFchart.plot(chartData);
 
 		XDDFBarChartData bar = (XDDFBarChartData) chartData;
-		bar.setBarDirection(BarDirection.BAR);
+		bar.setBarDirection(BarDirection.COL);
 		bar.setBarGrouping(BarGrouping.STANDARD);
 
 	}
