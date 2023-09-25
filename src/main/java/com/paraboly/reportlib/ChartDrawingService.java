@@ -599,6 +599,14 @@ public class ChartDrawingService {
 		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn()
 				.addNewPrstDash().setVal(STPresetLineDashVal.SOLID);
 		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).addNewSmooth().setVal(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).addNewDLbls().addNewShowVal().setVal(true);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowLeaderLines().setVal(true);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowSerName().setVal(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowCatName().setVal(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowPercent().setVal(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowLegendKey().setVal(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewNumFmt().setSourceLinked(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().getNumFmt().setFormatCode("%0.0");
 
 		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0)
 				.getSpPr().getLn().getSolidFill().getSrgbClr().setVal(new byte[]{(byte)0,(byte)0,(byte)255});
@@ -683,12 +691,14 @@ public class ChartDrawingService {
 						.getSolidFill().addNewSrgbClr();
 		}
 
-		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn()
-				.addNewPrstDash().setVal(STPresetLineDashVal.SOLID);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).addNewDLbls().addNewShowVal().setVal(true);
+		XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowSerName().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowCatName().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowPercent().setVal(false);
+		XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowLegendKey().setVal(false);
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn().addNewPrstDash().setVal(STPresetLineDashVal.SOLID);
 		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).addNewSmooth().setVal(false);
-
-		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0)
-				.getSpPr().getLn().getSolidFill().getSrgbClr().setVal(new byte[]{(byte)0,(byte)0,(byte)255});
+		ctChart.getPlotArea().getLineChartArray(0).getSerArray(0).getSpPr().getLn().getSolidFill().getSrgbClr().setVal(new byte[]{(byte)0,(byte)0,(byte)255});
 
 		ctChart.getPlotArea().getValAxArray(1).getNumFmt().setSourceLinked(false); // right axis
 		ctChart.getPlotArea().getValAxArray(1).getNumFmt().setFormatCode("#,##0.00\\ TL"); // right axis
