@@ -1,17 +1,13 @@
 package com.paraboly.reportlib;
 
 import lombok.SneakyThrows;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.ExtendedColor;
 import org.apache.poi.util.Units;
 import org.apache.poi.xddf.usermodel.*;
 import org.apache.poi.xddf.usermodel.chart.*;
-import org.apache.xmlbeans.XmlObject;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.labels.PieSectionLabelGenerator;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
@@ -25,9 +21,6 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.openxmlformats.schemas.drawingml.x2006.chart.*;
 import org.openxmlformats.schemas.drawingml.x2006.chart.CTBoolean;
 import org.openxmlformats.schemas.drawingml.x2006.main.*;
-import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
-import org.openxmlformats.schemas.officeDocument.x2006.sharedTypes.STXstring;
-import org.openxmlformats.schemas.drawingml.x2006.chart.STTickLblPos;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
@@ -35,7 +28,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -207,6 +199,9 @@ public class ChartDrawingService {
 			case "bar":
 				drawBarChartWithXDDF();
 				break;
+			case "line":
+				drawLineChartWithXDDF();
+				break;
 			case "combinedBar":
 				drawCombinedBarChartWithXDDF();
 				break;
@@ -357,6 +352,43 @@ public class ChartDrawingService {
 		else{
 			bar.setBarDirection(BarDirection.COL);
 		}
+	}
+
+	private void drawLineChartWithXDDF() {
+
+		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
+		bottomAxis.setTitle(categoryLabel);
+		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
+		leftAxis.setTitle(valueLabel[0]);
+		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+		leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
+
+		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
+
+		XDDFLineChartData chartData = (XDDFLineChartData) XDDFchart.createData(ChartTypes.LINE, bottomAxis, leftAxis);
+		chartData.setVaryColors(false);
+
+		XDDFLineChartData.Series lineSeries = (XDDFLineChartData.Series) chartData.addSeries(cat, val);
+		XDDFchart.plot(chartData);
+		lineSeries.setMarkerStyle(MarkerStyle.NONE);
+		lineSeries.setTitle(valueLabel[0], null);
+		lineSeries.setSmooth(false);
+
+		if(this.valueFormat != null){
+			XDDFchart.getCTChart().getPlotArea().getValAxArray(0).addNewNumFmt().setSourceLinked(false);
+			XDDFchart.getCTChart().getPlotArea().getValAxArray(0).getNumFmt().setFormatCode(this.valueFormat);
+
+			XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).addNewDLbls().addNewShowVal().setVal(true);
+			XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowSerName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowCatName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowPercent().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewShowLegendKey().setVal(false);
+
+			XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().addNewNumFmt().setSourceLinked(false);
+			XDDFchart.getCTChart().getPlotArea().getLineChartArray(0).getSerArray(0).getDLbls().getNumFmt().setFormatCode(this.valueFormat);
+		}
+		XDDFchart.plot(chartData);
 	}
 
 	private void drawCombinedBarChartWithXDDF() {
