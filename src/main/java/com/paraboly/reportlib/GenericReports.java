@@ -145,6 +145,7 @@ public class GenericReports {
 							|| sheetData.sheetType.equals("BAKAN OLURLARI")
 							|| sheetData.sheetType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI")
 							|| sheetData.sheetType.equals(" İHALE USULÜNE GÖRE TENZİLAT DAĞILIMI")
+							|| sheetData.sheetType.equals(" İHALE USULÜNE GÖRE ORAN DAĞILIMI")
 							|| sheetData.sheetType.equals(" GN. MD. BİLGİ NOTU")
 							|| (reportData.yearList != null && !reportData.yearList.isEmpty() &&
 								sheetData.sheetType.equals(" "+ reportData.yearList.get(0)+ " YILI TENZİLAT"))
@@ -883,6 +884,7 @@ public class GenericReports {
 					title = (previousYear)+"-"+(reportData.yearList.get(0))+" YILI" + reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
 				}else if(reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI") ||
 						reportData.reportType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI") ||
+						reportData.reportType.equals(" İHALE USULÜNE GÖRE ORAN DAĞILIMI") ||
 						reportData.reportType.equals(" İHALE USULÜNE GÖRE TENZİLAT DAĞILIMI")){
 					title = reportData.yearList.get(0).toString() + " YILI YAPIM İHALE TUTARININ\n"+reportData.reportType;
 				}
