@@ -214,6 +214,9 @@ public class ChartDrawingService {
 			case "stackedBarChart":
 				drawStackedBarChartWithXDDF();
 				break;
+			case "combinedStackedBarChart":
+				drawCombinedStackedBarChartWithXDDF();
+				break;
 			case "combinedBarForCustom":
 				drawCustomChartWithXDDF();
 				break;
@@ -779,6 +782,69 @@ public class ChartDrawingService {
 		XDDFBarChartData bar = (XDDFBarChartData) chartData;
 		bar.setBarDirection(BarDirection.COL);
 		bar.setBarGrouping(BarGrouping.STANDARD);
+
+	}
+	private void drawCombinedStackedBarChartWithXDDF() {
+
+		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
+		legend.setPosition(LegendPosition.TOP);
+
+		XDDFCategoryAxis bottomAxis = XDDFchart.createCategoryAxis(AxisPosition.BOTTOM);
+		bottomAxis.setTitle(categoryLabel);
+
+		XDDFValueAxis leftAxis = XDDFchart.createValueAxis(AxisPosition.LEFT);
+		//leftAxis.setTitle(valueLabel[0]);
+		leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
+		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
+
+		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
+
+		ArrayList<XDDFNumericalDataSource<Double>> vals = new ArrayList<>();
+		for(int i = 0; i < values.length; i++){
+			vals.add(XDDFDataSourcesFactory.fromArray(values[i]));
+		}
+
+		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
+		chartData.setVaryColors(true);
+
+		ArrayList<XDDFChartData.Series> series = new ArrayList<>();
+		for(XDDFNumericalDataSource<Double> val : vals) {
+			series.add(chartData.addSeries(cat, val));
+		}
+		for(int i = 0; i < valueLabel.length; i++)
+			series.get(i).setTitle(valueLabel[i], null);
+
+		XDDFchart.getCTChart().getPlotArea().getValAxArray(0).addNewNumFmt().setSourceLinked(false);
+		XDDFchart.getCTChart().getPlotArea().getValAxArray(0).getNumFmt().setFormatCode("%0");
+
+		CTChart ctChart = XDDFchart.getCTChart();
+		ctChart.getPlotArea().getBarChartArray(0).addNewOverlap().setVal((byte) 100);
+		CTBoolean ctboolean = CTBoolean.Factory.newInstance();
+		ctboolean.setVal(true);
+
+		ctChart.getPlotArea().getBarChartArray(0).addNewDLbls().setShowVal(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowPercent(ctboolean);
+		ctboolean.setVal(false);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowLeaderLines(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowSerName(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowLegendKey(ctboolean);
+		ctChart.getPlotArea().getBarChartArray(0).getDLbls().setShowCatName(ctboolean);
+
+		for(int i = 0; i < series.size(); i++){
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).addNewDLbls().addNewShowVal().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowLeaderLines().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowSerName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowCatName().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowPercent().setVal(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewShowLegendKey().setVal(false);
+
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().addNewNumFmt().setSourceLinked(false);
+			XDDFchart.getCTChart().getPlotArea().getBarChartArray(0).getSerArray(i).getDLbls().getNumFmt().setFormatCode("%0");
+		}
+		XDDFchart.plot(chartData);
+		XDDFBarChartData bar = (XDDFBarChartData) chartData;
+		bar.setBarDirection(BarDirection.COL);
+		bar.setBarGrouping(BarGrouping.PERCENT_STACKED);
 
 	}
 

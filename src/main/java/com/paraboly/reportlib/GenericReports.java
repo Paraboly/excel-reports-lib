@@ -883,6 +883,7 @@ public class GenericReports {
 					title = (previousYear)+"-"+(reportData.yearList.get(0))+" YILI" + reportData.reportType+"\n Yapım ve Yapım (Bakım) İhaleleri";
 				}else if(reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI") ||
 						reportData.reportType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI") ||
+						reportData.reportType.equals(" İHALE USULÜNE GÖRE ORAN DAĞILIMI") ||
 						reportData.reportType.equals(" İHALE USULÜNE GÖRE TENZİLAT DAĞILIMI")){
 					title = reportData.yearList.get(0).toString() + " YILI YAPIM İHALE TUTARININ\n"+reportData.reportType;
 				}
@@ -1025,12 +1026,13 @@ public class GenericReports {
 						|| reportData.reportType.equals(" YAPIM İŞİ İHALELERİ")
 						|| reportData.reportType.equals(" DANIŞMANLIK İŞİ İHALELERİ")
 						|| reportData.reportType.equals(" HİZMET İŞİ İHALELERİ")
+						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE ORAN DAĞILIMI")
 						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI")){
 					col2 = offsetXCounter;
 				}
 				XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
 				int chartHeight = 20;
-				if(reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI")){
+				if(reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI") || reportData.reportType.equals(" İHALE USULÜNE GÖRE ORAN DAĞILIMI")){
 					chartHeight = 45;
 				}
 				XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, col1, startOffsetY, col2, startOffsetY + chartHeight);
