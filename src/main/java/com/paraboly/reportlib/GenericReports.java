@@ -1034,12 +1034,13 @@ public class GenericReports {
 						|| reportData.reportType.equals(" YAPIM İŞİ İHALELERİ")
 						|| reportData.reportType.equals(" DANIŞMANLIK İŞİ İHALELERİ")
 						|| reportData.reportType.equals(" HİZMET İŞİ İHALELERİ")
+						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE ORAN DAĞILIMI")
 						|| reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI")){
 					col2 = offsetXCounter;
 				}
 				XSSFDrawing drawing = (XSSFDrawing) sheet.createDrawingPatriarch();
 				int chartHeight = 20;
-				if(reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI")){
+				if(reportData.reportType.equals(" İHALE USULÜNE GÖRE DAĞILIMI") || reportData.reportType.equals(" İHALE USULÜNE GÖRE ORAN DAĞILIMI")){
 					chartHeight = 45;
 				}
 				XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, col1, startOffsetY, col2, startOffsetY + chartHeight);
