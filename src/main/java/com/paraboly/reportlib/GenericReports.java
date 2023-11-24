@@ -1,38 +1,21 @@
 package com.paraboly.reportlib;
 
-import com.paraboly.reportlib.utils.StyleUtils;
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
-import lombok.Builder;
 import lombok.Data;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
-import org.apache.poi.util.IOUtils;
-import org.apache.poi.xddf.usermodel.XDDFEffectContainer;
-import org.apache.poi.xddf.usermodel.XDDFLineProperties;
-import org.apache.poi.xddf.usermodel.XDDFSolidFillProperties;
 import org.apache.poi.xddf.usermodel.chart.*;
 import org.apache.poi.xssf.usermodel.*;
-import org.jfree.chart.labels.PieSectionLabelGenerator;
-import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
-import org.jfree.chart.plot.PiePlot3D;
-import org.openxmlformats.schemas.drawingml.x2006.chart.*;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.STHorizontalAlignment;
-
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.paraboly.reportlib.utils.StyleUtils.*;
 //build
@@ -149,6 +132,7 @@ public class GenericReports {
 							|| sheetData.sheetType.equals(" İHALE USULÜNE GÖRE ORAN DAĞILIMI")
 							|| sheetData.sheetType.equals(" GN. MD. BİLGİ NOTU")
 							|| sheetData.sheetType.equals("SÖZLEŞME & ÖN MALİ KONTROL KARŞILAŞTIRMA RAPORU")
+							|| sheetData.sheetType.equals("ÖN MALİ KONTROL VE SÖZLEŞME KARŞILAŞTIRMA RAPORU")
 							|| (reportData.yearList != null && !reportData.yearList.isEmpty() &&
 								sheetData.sheetType.equals(" "+ reportData.yearList.get(0)+ " YILI TENZİLAT"))
 							|| sheetData.sheetType.equals(" TENZİLAT TABLO \n( SON 2 YIL )")
@@ -435,7 +419,7 @@ public class GenericReports {
 				columnHeaderRow = sheet.createRow(offsetYCounter);
 			}
 			double height = 0;
-			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || this.reportData.reportType.equals("SÖZLEŞME & ÖN MALİ KONTROL KARŞILAŞTIRMA RAPORU")){
+			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || this.reportData.reportType.equals("SÖZLEŞME & ÖN MALİ KONTROL KARŞILAŞTIRMA RAPORU") || this.reportData.reportType.equals("ÖN MALİ KONTROL VE SÖZLEŞME KARŞILAŞTIRMA LİSTESİ")){
 				height = 17.0;
 			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
 				height = 6.0;
@@ -669,6 +653,8 @@ public class GenericReports {
 							link.setAddress("' LİSTE'!A1");
 						}else if(data.get(i).toString().equals("SÖZLEŞME & ÖN MALİ KONTROL KARŞILAŞTIRMA RAPORU")){
 							link.setAddress("'SÖZLEŞME & ÖN MALİ KONTROL KARŞ'!A1");
+						}else if(data.get(i).toString().equals("ÖN MALİ KONTROL VE SÖZLEŞME KARŞILAŞTIRMA LİSTESİ")){
+							link.setAddress("'SÖZLEŞME VE ÖN MALİ KONTROL KAR'!A1");
 						}
 						else{
 							link.setAddress("'" + data.get(i).toString() + "'!A1");
@@ -790,6 +776,7 @@ public class GenericReports {
 					|| reportData.reportType.equals("BAKAN OLURLARI")
 					|| reportData.sheetData.sheetType.equals("GN. MD. BİLGİ NOTU")
 					|| reportData.sheetData.sheetType.equals("SÖZLEŞME & ÖN MALİ KONTROL KARŞILAŞTIRMA RAPORU")
+					|| reportData.sheetData.sheetType.equals("ÖN MALİ KONTROL VE SÖZLEŞME KARŞILAŞTIRMA LİSTESİ")
 			){
 
 				Cell headerCell = mergeCellAndSetBorder(sheet,reportData.headerStartOffsetY, reportData.headerEndOffsetY, reportData.headerStartOffsetX, reportData.headerEndOffsetX);
@@ -945,7 +932,7 @@ public class GenericReports {
 			}
 
 			double height;
-			if (reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || reportData.reportType.equals("SÖZLEŞME & ÖN MALİ KONTROL KARŞILAŞTIRMA RAPORU")){
+			if (reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || reportData.reportType.equals("SÖZLEŞME & ÖN MALİ KONTROL KARŞILAŞTIRMA RAPORU") || reportData.reportType.equals("ÖN MALİ KONTROL VE SÖZLEŞME KARŞILAŞTIRMA LİSTESİ")){
 				height = 17.0;
 
 			}else if (reportData.reportType.substring(0,1).equals(" ")){
