@@ -684,6 +684,15 @@ public class GenericReports {
 						}
 						else{
 							dataCell.setCellValue(data.get(i).toString());
+							if (dataCell.getStringCellValue().equalsIgnoreCase("Tutarsız")){
+								XSSFCellStyle xssfCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
+								xssfCellStyle.cloneStyleFrom(columnStyle);
+
+								xssfCellStyle.setFillForegroundColor(new XSSFColor(java.awt.Color.RED));
+								xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+								dataCell.setCellStyle(xssfCellStyle);
+							}
 						}
 					}
 
