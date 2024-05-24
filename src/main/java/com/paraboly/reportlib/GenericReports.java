@@ -682,7 +682,7 @@ public class GenericReports {
 						}
 						else{
 							dataCell.setCellValue(data.get(i).toString());
-							if (dataCell.getStringCellValue().equalsIgnoreCase("Tutarsız")){
+							if (dataCell.getStringCellValue().equalsIgnoreCase("Tutarsız") || dataCell.getStringCellValue().equalsIgnoreCase("EVET")){
 								XSSFCellStyle xssfCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
 								xssfCellStyle.cloneStyleFrom(columnStyle);
 
