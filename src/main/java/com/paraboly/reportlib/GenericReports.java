@@ -107,8 +107,16 @@ public class GenericReports {
 
 		public XSSFWorkbook create() {
 			for (SheetData sheetData: sheetDataList){
-				String sheetTitle = sheetData.getSheetType().equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") ?
-						" LİSTE" : sheetData.getSheetType();
+				String sheetTitle = "";
+				if (sheetData.getSheetType().equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+					sheetTitle = " LİSTE";
+				} else if (sheetData.getSheetType().equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER")) {
+					sheetTitle = "ONAYLANAN LİSTE";
+				} else if (sheetData.getSheetType().equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER")) {
+					sheetTitle = "ONAYLANMAYAN LİSTE";
+				} else {
+					sheetTitle = sheetData.getSheetType();
+				}
 
 				XSSFSheet sheet = wb.createSheet(sheetTitle);
 
@@ -125,6 +133,8 @@ public class GenericReports {
 					reportData.setHeaderEndOffsetY(sheetData.currentY + reportData.getHeaderEndOffsetY());
 					TableMapperExtended tableMapperExtended = getReportTable(reportData, sheet);
 					if(sheetData.sheetType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
+							|| sheetData.sheetType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER")
+							|| sheetData.sheetType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER")
 							|| sheetData.sheetType.equals("CUMHURBAŞKANLIĞI")
 							|| sheetData.sheetType.equals("BAKAN OLURLARI")
 							|| sheetData.sheetType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI")
@@ -418,7 +428,7 @@ public class GenericReports {
 				columnHeaderRow = sheet.createRow(offsetYCounter);
 			}
 			double height = 0;
-			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || this.reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ RAPORU") || this.reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ")){
+			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || this.reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER") || this.reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER") || this.reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ RAPORU") || this.reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ")){
 				height = 17.0;
 			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
 				height = 6.0;
@@ -649,6 +659,10 @@ public class GenericReports {
 						}
 						else if(data.get(i).toString().equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 							link.setAddress("' LİSTE'!A1");
+						}else if(data.get(i).toString().equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER")){
+							link.setAddress("'ONAYLANAN LİSTE'!A1");
+						}else if(data.get(i).toString().equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER")){
+							link.setAddress("'ONAYLANMAYAN LİSTE'!A1");
 						}else if(data.get(i).toString().equals("SÖZLEŞME & ÖN MALİ KONTROL KARŞILAŞTIRMA RAPORU")){
 							link.setAddress("'ÇALIŞMALARIN İZLENMESİ RAPORU'!A1");
 						}else if(data.get(i).toString().equals("ÇALIŞMALARIN İZLENMESİ")){
@@ -679,6 +693,10 @@ public class GenericReports {
 						}
 						else if(data.get(i).toString().equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
 							dataCell.setCellValue("ÖN MALİ KONTROL LİSTE");
+						}else if(data.get(i).toString().equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER")){
+							dataCell.setCellValue("ÖN MALİ KONTROLÜ ONAYLANANLAR LİSTESİ");
+						}else if(data.get(i).toString().equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER")){
+							dataCell.setCellValue("ÖN MALİ KONTROLÜ ONAYLANMAYANLAR LİSTESİ");
 						}
 						else{
 							dataCell.setCellValue(data.get(i).toString());
@@ -795,6 +813,8 @@ public class GenericReports {
 			int rowSize = 1;
 
 			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
+					|| reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER")
+					|| reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER")
 					|| reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")
 					|| reportData.reportType.substring(0,1).equals(" ")
 					|| reportData.reportType.equals("CUMHURBAŞKANLIĞI")
@@ -808,7 +828,7 @@ public class GenericReports {
 
 				rowSize = reportData.headerEndOffsetY - reportData.headerStartOffsetY + 1;
 				String title;
-				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")){
+				if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER") || reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER")){
 					StringBuilder years = new StringBuilder();
 					if(reportData.yearList != null) {
 						for (Integer year : reportData.yearList) {
@@ -957,7 +977,7 @@ public class GenericReports {
 			}
 
 			double height;
-			if (reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ RAPORU") || reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ")){
+			if (reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER") || reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER") || reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ RAPORU") || reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ")){
 				height = 17.0;
 
 			}else if (reportData.reportType.substring(0,1).equals(" ")){
