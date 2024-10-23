@@ -708,6 +708,24 @@ public class GenericReports {
 								xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
 								dataCell.setCellStyle(xssfCellStyle);
+							} else if (cell.getStringCellValue().equalsIgnoreCase("KONTROL (İHALE BEDELİ)") || (cell.getStringCellValue().equalsIgnoreCase("KONTROL (YAKLAŞIK MALİYET)"))){
+								if (dataCell.getStringCellValue().equalsIgnoreCase("KONTROL EDİLDİ!")){
+									XSSFCellStyle xssfCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
+									xssfCellStyle.cloneStyleFrom(columnStyle);
+
+									xssfCellStyle.setFillForegroundColor(new XSSFColor(java.awt.Color.GREEN));
+									xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+									dataCell.setCellStyle(xssfCellStyle);
+								} else if (dataCell.getStringCellValue().equalsIgnoreCase("KONTROL EDİLİYOR!")) {
+									XSSFCellStyle xssfCellStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
+									xssfCellStyle.cloneStyleFrom(columnStyle);
+
+									xssfCellStyle.setFillForegroundColor(new XSSFColor(java.awt.Color.YELLOW));
+									xssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+									dataCell.setCellStyle(xssfCellStyle);
+								}
 							}
 						}
 					}
