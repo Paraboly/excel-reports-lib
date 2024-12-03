@@ -135,6 +135,7 @@ public class GenericReports {
 					if(sheetData.sheetType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
 							|| sheetData.sheetType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER")
 							|| sheetData.sheetType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER")
+							|| sheetData.sheetType.equals("BEKLENEN İHALELER")
 							|| sheetData.sheetType.equals("CUMHURBAŞKANLIĞI")
 							|| sheetData.sheetType.equals("BAKAN OLURLARI")
 							|| sheetData.sheetType.equals(" İHALE USULÜNE GÖRE TUTAR DAĞILIMI")
@@ -428,7 +429,7 @@ public class GenericReports {
 				columnHeaderRow = sheet.createRow(offsetYCounter);
 			}
 			double height = 0;
-			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || this.reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER") || this.reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER") || this.reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ RAPORU") || this.reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ")){
+			if (this.reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || this.reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER") || this.reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER") || this.reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ RAPORU") || this.reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ") || this.reportData.reportType.equals("BEKLENEN İHALELER")){
 				height = 17.0;
 			}else if (this.reportData.reportType.substring(0,1).equals(" ")){
 				height = 6.0;
@@ -815,6 +816,7 @@ public class GenericReports {
 			if(reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER")
 					|| reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER")
 					|| reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER")
+					|| reportData.reportType.equals("BEKLENEN İHALELER")
 					|| reportData.reportType.equals("Ön Mali Kontrol İşlem Belgesi")
 					|| reportData.reportType.substring(0,1).equals(" ")
 					|| reportData.reportType.equals("CUMHURBAŞKANLIĞI")
@@ -977,7 +979,7 @@ public class GenericReports {
 			}
 
 			double height;
-			if (reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER") || reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER") || reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ RAPORU") || reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ")){
+			if (reportData.reportType.equals("ÖN MALİ KONTROLÜ YAPILAN İHALELER") || reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANAN İHALELER") || reportData.reportType.equals("ÖN MALİ KONTROLÜ ONAYLANMAYAN İHALELER") || reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ RAPORU") || reportData.reportType.equals("ÇALIŞMALARIN İZLENMESİ") || reportData.reportType.equals("BEKLENEN İHALELER")){
 				height = 17.0;
 
 			}else if (reportData.reportType.substring(0,1).equals(" ")){
