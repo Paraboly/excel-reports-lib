@@ -177,7 +177,21 @@ public class ChartDrawingService {
 		Double[] sumMoneyList = new Double[valueKey.length / 2];
 		for(int t = 0; t < valueKey.length / 2; t++) {
 			for (Object data: dataList) {
-				Double value = Double.valueOf(colData.get(valueKey[t]).getCustomFunction().apply(data).toString());
+				Object colDefinition = colData.get(valueKey[t]);
+				if (colDefinition == null) {
+					System.err.println("Error: No column definition found for key: " + valueKey[t]);
+					continue;
+				}
+				java.util.function.Function<Object, ?> customFunction = ((GenericReports.ColumnMetadata) colDefinition).getCustomFunction();
+				if (customFunction == null) {
+					System.err.println("Error: No custom function found for key: " + valueKey[t]);
+					continue;
+				}
+				Object functionResult = customFunction.apply(data);
+				if (functionResult == null) {
+					functionResult = 0.0;
+				}
+				Double value = Double.valueOf(functionResult.toString());
 				sumCountList[t] = sumCountList[t] == null ? value : sumCountList[t] + value;
 			}
 		}
