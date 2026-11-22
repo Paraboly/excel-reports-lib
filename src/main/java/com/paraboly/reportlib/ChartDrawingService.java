@@ -119,6 +119,24 @@ public class ChartDrawingService {
 		this.barDirection = barDirection;
 	}
 
+	/**
+	 * Chart caches must not contain NaN or Infinity: Excel reports the workbook as damaged and
+	 * offers to repair it (e.g. a 0/0 discount average for a bidding procedure without biddings).
+	 * Such values are drawn as 0, which is what the table next to the chart shows.
+	 */
+	static Double[] finite(Double[] values) {
+		if (values == null) {
+			return null;
+		}
+		Double[] result = values.clone();
+		for (int i = 0; i < result.length; i++) {
+			if (result[i] != null && (result[i].isNaN() || result[i].isInfinite())) {
+				result[i] = 0.0;
+			}
+		}
+		return result;
+	}
+
 	public ChartDrawingService addData(List<?> dataList, String categoryMethod, String[] valueMethod, String groupName, String[] valueKey, LinkedHashMap<String, GenericReports.ColumnMetadata> colData) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 		categories = new String[dataList.size()];
 		values = new Double[valueMethod.length][dataList.size()];
@@ -276,7 +294,7 @@ public class ChartDrawingService {
 		legend.setPosition(LegendPosition.BOTTOM);
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
-		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(finite(values[0]));
 
 		XDDFChartData chartData = XDDFchart.createData(ChartTypes.PIE3D, null, null);
 
@@ -342,7 +360,7 @@ public class ChartDrawingService {
 		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
-		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(finite(values[0]));
 
 		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 		chartData.setVaryColors(true);
@@ -381,7 +399,7 @@ public class ChartDrawingService {
 		leftAxis.setCrosses(AxisCrosses.AUTO_ZERO);
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
-		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(finite(values[0]));
 
 		XDDFLineChartData chartData = (XDDFLineChartData) XDDFchart.createData(ChartTypes.LINE, bottomAxis, leftAxis);
 		chartData.setVaryColors(false);
@@ -421,8 +439,8 @@ public class ChartDrawingService {
 		leftAxis.setCrossBetween(AxisCrossBetween.BETWEEN);
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
-		XDDFNumericalDataSource<Double> val1 = XDDFDataSourcesFactory.fromArray(values[0]);
-		XDDFNumericalDataSource<Double> val2 = XDDFDataSourcesFactory.fromArray(values[1]);
+		XDDFNumericalDataSource<Double> val1 = XDDFDataSourcesFactory.fromArray(finite(values[0]));
+		XDDFNumericalDataSource<Double> val2 = XDDFDataSourcesFactory.fromArray(finite(values[1]));
 
 		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 		chartData.setVaryColors(true);
@@ -452,9 +470,9 @@ public class ChartDrawingService {
 	}
 	private void drawCombinedBarAndLineChartWithXDDF() {
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
-		XDDFNumericalDataSource<Double> val1 = XDDFDataSourcesFactory.fromArray(values[0]);
-		XDDFNumericalDataSource<Double> val2 = XDDFDataSourcesFactory.fromArray(values[1]);
-		XDDFNumericalDataSource<Double> val3 = XDDFDataSourcesFactory.fromArray(values[2]);
+		XDDFNumericalDataSource<Double> val1 = XDDFDataSourcesFactory.fromArray(finite(values[0]));
+		XDDFNumericalDataSource<Double> val2 = XDDFDataSourcesFactory.fromArray(finite(values[1]));
+		XDDFNumericalDataSource<Double> val3 = XDDFDataSourcesFactory.fromArray(finite(values[2]));
 
 		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
 		legend.setPosition(LegendPosition.TOP);
@@ -559,9 +577,9 @@ public class ChartDrawingService {
 
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
 
-		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
-		XDDFNumericalDataSource<Double> secondVal = XDDFDataSourcesFactory.fromArray(values[1]);
-		XDDFNumericalDataSource<Double> thirdVal = XDDFDataSourcesFactory.fromArray(values[2]);
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(finite(values[0]));
+		XDDFNumericalDataSource<Double> secondVal = XDDFDataSourcesFactory.fromArray(finite(values[1]));
+		XDDFNumericalDataSource<Double> thirdVal = XDDFDataSourcesFactory.fromArray(finite(values[2]));
 
 		XDDFChartData barChartDataPositive = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
 		barChartDataPositive.setVaryColors(true);
@@ -651,8 +669,8 @@ public class ChartDrawingService {
 
 	private void drawCustomChartWithXDDF() {
 		XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories);
-		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(values[0]);
-		XDDFNumericalDataSource<Double> secondVal = XDDFDataSourcesFactory.fromArray(values[1]);
+		XDDFNumericalDataSource<Double> val = XDDFDataSourcesFactory.fromArray(finite(values[0]));
+		XDDFNumericalDataSource<Double> secondVal = XDDFDataSourcesFactory.fromArray(finite(values[1]));
 
 		XDDFChartLegend legend = XDDFchart.getOrAddLegend();
 		legend.setPosition(LegendPosition.TOP);
@@ -750,7 +768,7 @@ public class ChartDrawingService {
 
 		ArrayList<XDDFNumericalDataSource<Double>> vals = new ArrayList<>();
 		for(int i = 0; i < values.length; i++){
-			vals.add(XDDFDataSourcesFactory.fromArray(values[i]));
+			vals.add(XDDFDataSourcesFactory.fromArray(finite(values[i])));
 		}
 
 		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
@@ -815,7 +833,7 @@ public class ChartDrawingService {
 
 		ArrayList<XDDFNumericalDataSource<Double>> vals = new ArrayList<>();
 		for(int i = 0; i < values.length; i++){
-			vals.add(XDDFDataSourcesFactory.fromArray(values[i]));
+			vals.add(XDDFDataSourcesFactory.fromArray(finite(values[i])));
 		}
 
 		XDDFChartData chartData = XDDFchart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
