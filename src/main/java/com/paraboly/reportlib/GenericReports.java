@@ -164,6 +164,11 @@ public class GenericReports {
 					}
 					sheetData.currentY = tableMapperExtended.columnDefinitionList.get(0).offsetYCounter + 1;
 				}
+				// Merged regions are added without per-call validation: addMergedRegion re-parses every
+				// existing region on each call, which is quadratic and took most of the time on large
+				// lists (14k merges on one sheet). Validate once per sheet instead, so overlapping
+				// regions still fail with the same IllegalStateException.
+				sheet.validateMergedRegions();
 			}
 			return wb;
 		}
@@ -443,7 +448,7 @@ public class GenericReports {
 
 			if(columnSize >= 1 && reportData.mergeTwoRow==true) {
 				CellRangeAddress region = new CellRangeAddress(offsetYCounter, offsetYCounter+1, startOffsetX, startOffsetX + columnSize - 1);
-				sheet.addMergedRegion(region);
+				sheet.addMergedRegionUnsafe(region);
 				RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
 				RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
 				RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
@@ -461,7 +466,7 @@ public class GenericReports {
 			else if(columnSize>1 && reportData.mergeTwoRow==false){
 				if(!isMerged){
 					CellRangeAddress region = new CellRangeAddress(offsetYCounter, offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
-					sheet.addMergedRegion(region);
+					sheet.addMergedRegionUnsafe(region);
 					RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
 					RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
 					RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
@@ -503,7 +508,7 @@ public class GenericReports {
 					}
 					if(reportName != null && reportName.equals(" YILLARA GÖRE ÖN MALİ K.(GÜNCEL)")){
 						CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter + 1, startOffsetX, startOffsetX + columnSize - 1);
-						sheet.addMergedRegion(region);
+						sheet.addMergedRegionUnsafe(region);
 						RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
 						RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
 						RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
@@ -515,7 +520,7 @@ public class GenericReports {
 				if(columnSize > 1 && notDeflator) {
 					if (i != data.size() || !disableBottomRow){
 						CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
-						sheet.addMergedRegion(region);
+						sheet.addMergedRegionUnsafe(region);
 						RegionUtil.setBorderBottom(BorderStyle.THIN, region, sheet);
 						RegionUtil.setBorderTop(BorderStyle.THIN, region, sheet);
 						RegionUtil.setBorderLeft(BorderStyle.THIN, region, sheet);
@@ -620,7 +625,7 @@ public class GenericReports {
 					}
 					if(bottomTitle != null){
 						CellRangeAddress region = new CellRangeAddress(i + offsetYCounter, i + offsetYCounter, startOffsetX, startOffsetX + columnSize - 1);
-						sheet.addMergedRegion(region);
+						sheet.addMergedRegionUnsafe(region);
 
 						dataCell.setCellStyle(getBottomTitleCellStyle(sheet,12));
 						dataCell.setCellValue(bottomTitle);
@@ -802,7 +807,7 @@ public class GenericReports {
 					cell.setCellStyle(borderStyle);
 				}
 			}
-			sheet.addMergedRegion(new CellRangeAddress(rowStart, rowEnd, colStart, colEnd));
+			sheet.addMergedRegionUnsafe(new CellRangeAddress(rowStart, rowEnd, colStart, colEnd));
 			return sheet.getRow(rowStart).getCell(colStart);
 		}
 
@@ -1023,7 +1028,7 @@ public class GenericReports {
 			int offsetY = startOffsetY + columnDefinitionList.size() + 1;
 			Row totalRow = sheet.createRow(offsetY);
 			CellRangeAddress region = new CellRangeAddress(offsetY, offsetY, startOffsetX, startOffsetX + 1);
-			sheet.addMergedRegion(region);
+			sheet.addMergedRegionUnsafe(region);
 			RegionUtil.setBorderBottom(BorderStyle.MEDIUM, region, sheet);
 			RegionUtil.setBorderTop(BorderStyle.MEDIUM, region, sheet);
 			RegionUtil.setBorderLeft(BorderStyle.MEDIUM, region, sheet);
